@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  
+  
+  
+  
+    
+  
+      <title>Node.js实现自签名https api接口 - 哒哒</title>
+  
+  
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+
+  <link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/gridlex.min.css">
+<link rel="stylesheet" href="/css/skeleton.css">
+<link rel="stylesheet" href="/css/theme.css">
+<link rel="stylesheet" href="/css/share.min.css">
+<link rel="stylesheet" href="/css/lightbox.min.css">
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+  });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+
+</head>
+<body style="display: flex; flex-direction: column; min-height: 100vh;">
+  <header class="header">
+	<div class="header-title">
+		<div><a href="/">哒哒</a></div>
+	</div>
+	<div id="header-menu-container">
+		<nav class="menu">
+	
+		
+	
+	<div class='menu-item'>
+		<div class='menu-icon'>
+			<a href="/archives/">
+			<img src="/images/archive.svg" alt="">
+			</a>
+		</div>
+		<div class="menu-name">
+			<a class='menu-link' href="/archives/">
+				<span>归档</span>
+			</a>
+		</div>
+	</div>
+	
+	
+		
+		
+			<div class='menu-item'>
+			
+				<div class='menu-icon'>
+				<a href="/product">
+					<img src="/images/projects.svg" alt="">
+					</a>
+					</div>
+					
+					<div class="menu-name">
+						<a class='menu-link' href="/product">
+							<span>作品</span>
+						</a>
+					</div>
+				</a>
+			</div>
+		
+	
+		
+		
+			<div class='menu-item'>
+			
+				<div class='menu-icon'>
+				<a href="/resume">
+					<img src="/images/resume.svg" alt="">
+					</a>
+					</div>
+					
+					<div class="menu-name">
+						<a class='menu-link' href="/resume">
+							<span>简历</span>
+						</a>
+					</div>
+				</a>
+			</div>
+		
+	
+		
+		
+			<div class='menu-item'>
+			
+				<div class='menu-icon'>
+				<a href="/about">
+					<img src="/images/fun.svg" alt="">
+					</a>
+					</div>
+					
+					<div class="menu-name">
+						<a class='menu-link' href="/about">
+							<span>关于</span>
+						</a>
+					</div>
+				</a>
+			</div>
+		
+	
+</nav>
+
+	</div>
+</header>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div style="flex: 1;">
+      <style>
+    body {
+        background-color: white;
+    }
+</style>
+
+<article class="article">
+
+    <!-- Title -->
+
+    
+        
+            
+                
+                
+            
+        
+    
+
+    <div class='article-header'>
+         <div class='article-logo'>
+            <a href="/categories/Node-js/">
+                <img src="/images/Node.js.svg" alt="">
+            </a>
+         </div>
+         <h1 class='article-title'>
+            <a href="/2017/06/02/2017060201/">
+                Node.js实现自签名https Api接口
+            </a>
+        </h1>
+    </div>
+   
+    <!-- Date and Author -->
+    <p>
+       	2017-06-02
+        by dayongxin
+    </p>
+    <p>
+        
+
+	<label><a href="/tags/https接口/">#Https接口</a></label>
+
+
+    </p>
+	<hr />
+
+    <!-- Gallery -->
+    
+    
+
+    <!-- Content -->
+    <p>使用Node.js、MongoDB、Express技术栈实现自签名https api服务器。</p>
+<a id="more"></a>
+<hr>
+<p>本文是<strong>哒哒</strong>原创，发表在 <a href="https://www.dayongxin.com">https://www.dayongxin.com</a><br>请阅读原文<strong>支持原创</strong> <a href="https://www.dayongxin.com/2017/06/02/2017060201/">https://www.dayongxin.com/2017/06/02/2017060201/</a></p>
+<hr>
+<h2 id="HTTPS简介"><a href="#HTTPS简介" class="headerlink" title="HTTPS简介"></a>HTTPS简介</h2><h3 id="HTTP与HTTPS的区别"><a href="#HTTP与HTTPS的区别" class="headerlink" title="HTTP与HTTPS的区别"></a>HTTP与HTTPS的区别</h3><p>HTTPS(Hyper Text Transfer Protocol Secure)是HTTP的安全版本，它是浏览器和所连接的网站之间发送数据的协议。 HTTPS结尾处的’S’表示“安全”。这样浏览器和网站之间的所有通信都会被加密。 HTTPS通常用于保护高度机密的在线交易，如网上银行和网上购物订单。在使用HTTPS协议的网站，Web浏览器（如Internet Explorer，Firefox和Chrome）会在地址栏中显示挂锁图标，以便显式的指示HTTPS连接生效。</p>
+<p><img src="https://www.instantssl.com/images/http-vs-https.png" alt=""></p>
+<h3 id="HTTPS是如何工作的？"><a href="#HTTPS是如何工作的？" class="headerlink" title="HTTPS是如何工作的？"></a>HTTPS是如何工作的？</h3><p>HTTPS页面通常使用两种安全协议之一来进行加密通信 - SSL（安全套接字层）或TLS（传输层安全性）。 TLS和SSL协议都使用所谓的“非对称”公钥基础设施（PKI）系统。 非对称系统使用两个“密钥”来加密通信，一个“公共”密钥和一个“私有”密钥。 用公钥加密的任何东西只能由私钥解密，反之亦然。</p>
+<p>正如名称所暗示的那样，“私人”密钥应该保持严格的保护，只有私钥的拥有者才能访问。 在网站的情况下，私钥保持安全地保存在Web服务器上。 相反，公钥旨在分发给需要能够解密用私钥加密的信息的任何人和每个人。</p>
+<p><img src="http://oqle0m5m6.bkt.clouddn.com/https%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86new.png" alt=""></p>
+<h3 id="什么是HTTPS证书？"><a href="#什么是HTTPS证书？" class="headerlink" title="什么是HTTPS证书？"></a>什么是HTTPS证书？</h3><p>当您请求与网页的HTTPS连接时，网站将首先将其SSL证书发送到浏览器。 此证书包含开始安全会话所需的公钥。 基于这种初始交换，您的浏览器和网站会启动“SSL握手”。 SSL握手涉及到生成共享秘密，以建立您和网站之间的独特安全连接。</p>
+<p>在HTTPS连接期间使用受信任的SSL数字证书时，用户将在浏览器地址栏中看到挂锁图标。 当网站上安装了扩展验证证书时，地址栏将变为绿色。</p>
+<h3 id="为什么需要SSL证书？"><a href="#为什么需要SSL证书？" class="headerlink" title="为什么需要SSL证书？"></a>为什么需要SSL证书？</h3><p>通过常规HTTP连接发送的所有通信均采用“纯文本”，任何黑客可以通过浏览器和网站之间的连接进行读取。 如果“通信”是在订单上，并包括您的信用卡详细信息或社会安全号码，这将会带来明显的危险。使用HTTPS连接，所有通信都被安全加密。 这意味着即使有人设法破解连接，也不能解密您和网站之间通过的任何数据。 </p>
+<h3 id="HTTPS协议的优点"><a href="#HTTPS协议的优点" class="headerlink" title="HTTPS协议的优点"></a>HTTPS协议的优点</h3><p>使用HTTPS协议通信的主要优点有：</p>
+<ul>
+<li>客户信息，如信用卡号码，被加密，不能被拦截</li>
+<li>访客可以验证您是注册商家，并且您拥有该域名</li>
+<li>客户更可能信任并完成从使用HTTPS的站点进行购买</li>
+</ul>
+<h3 id="什么样的HTTPS连接可被信任？"><a href="#什么样的HTTPS连接可被信任？" class="headerlink" title="什么样的HTTPS连接可被信任？"></a>什么样的HTTPS连接可被信任？</h3><ul>
+<li>用户相信他们的浏览器正确实现了HTTPS且安装了正确的证书颁发机构；</li>
+<li>用户相信证书颁发机构仅信任合法的网站；</li>
+<li>被访问的网站提供了一个有效的证书，意即，它是由一个被信任的证书颁发机构签发的（大部分浏览器会对无效的证书发出警告）；</li>
+<li>该证书正确地验证了被访问的网站（如，访问<a href="https://example时收到了给“Example" target="_blank" rel="external">https://example时收到了给“Example</a> Inc.”而不是其它组织的证书）；</li>
+<li>或者互联网上相关的节点是值得信任的，或者用户相信本协议的加密层（TLS或SSL）不能被窃听者破坏。</li>
+</ul>
+<p>接下来将通过自签名的CA证书来实现https api接口实现。</p>
+<h2 id="自制秘钥、证书"><a href="#自制秘钥、证书" class="headerlink" title="自制秘钥、证书"></a>自制秘钥、证书</h2><p>使用指令生成自签名的证书：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">//生成秘钥文件：privatekey.pem</div><div class="line">openssl genrsa -out privatekey.pem 1024</div><div class="line">//生成CSR证书签名文件：certrequest.pem</div><div class="line">openssl req -new -key privatekey.pem -out certrequest.pem</div><div class="line">//生成证书文件：file.crt</div><div class="line">openssl x509 -req -days 365 -in certrequest.pem -signkey privatekey.pem -out file.crt</div></pre></td></tr></table></figure>
+<h2 id="搭建开发环境"><a href="#搭建开发环境" class="headerlink" title="搭建开发环境"></a>搭建开发环境</h2><p>需要安装<a href="https://nodejs.org/en/" target="_blank" rel="external">Node.js</a>、<a href="http://www.expressjs.com.cn/" target="_blank" rel="external">Express</a>、<a href="http://mongoosejs.com/" target="_blank" rel="external">mongoose</a>。Node.js、Express、mongoose环境配置和简单教程自行到相应网站学习，在次不再介绍！</p>
+<h2 id="服务器开发"><a href="#服务器开发" class="headerlink" title="服务器开发"></a>服务器开发</h2><p>服务器项目代码结构如下图所示，重要目录已经使用红色字体进行标注：</p>
+<ul>
+<li>certificate：目录下用于存放自签名文件；</li>
+<li>models：目录下用于存放Schema文件；</li>
+<li>server.js：是服务器端主要代码。</li>
+</ul>
+<p><img src="http://oqle0m5m6.bkt.clouddn.com/748806E3-EF7E-4A02-8021-4B401DD3DC56.png" width="261" height="311" alt="项目代码结构" align="center"></p>
+<h3 id="开发Schema"><a href="#开发Schema" class="headerlink" title="开发Schema"></a>开发Schema</h3><p>先介绍开发mongoose中的几个名词：</p>
+<ul>
+<li>Schema：一种以文件形式存储的数据库模型骨架，不具备数据库的操作能力</li>
+<li>Model：由Schema发布生成的模型，具有抽象属性和行为的数据库操作对</li>
+<li>Entity：由Model创建的实体，他的操作也会影响数据库</li>
+</ul>
+<p><img src="http://oqle0m5m6.bkt.clouddn.com/Schema%E3%80%81Model%E3%80%81Entity.png" alt=""></p>
+<p>Model层的person.js代码如下，定义字段名称及其属性，实现数据库操作。<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * person model</div><div class="line"> * person 属性：id/name/age/phoneNum/email/school/description/create_time</div><div class="line"> */</div><div class="line">//mongoose</div><div class="line">var mongoose = require('mongoose');</div><div class="line">//Schema</div><div class="line">var personSchema = mongoose.Schema(&#123;</div><div class="line">    name: &#123;</div><div class="line">        type: String,</div><div class="line">        required: true</div><div class="line">    &#125;, age: &#123;</div><div class="line">        type: String,</div><div class="line">        required: false</div><div class="line">    &#125;, phoneNum: &#123;</div><div class="line">        type: String,</div><div class="line">        required: true</div><div class="line">    &#125;, email: &#123;</div><div class="line">        type: String,</div><div class="line">        required: false</div><div class="line">    &#125;, school: &#123;</div><div class="line">        type: String,</div><div class="line">        required: false</div><div class="line">    &#125;, description: &#123;</div><div class="line">        type: String,</div><div class="line">        required: false</div><div class="line">    &#125;, create_time: &#123;</div><div class="line">        type: Date,</div><div class="line">        default: Date.now</div><div class="line">    &#125;</div><div class="line">&#125;);</div><div class="line">//Person</div><div class="line">var Person = module.exports = mongoose.model('Person', personSchema);</div><div class="line"></div><div class="line">/**</div><div class="line"> * 获取person数据列表</div><div class="line"> * @param callback</div><div class="line"> * @param limit</div><div class="line"> */</div><div class="line">module.exports.getPersons = function (callback, limit) &#123;</div><div class="line">    Person.find(callback).limit(limit);</div><div class="line">&#125;</div><div class="line"></div><div class="line">/**</div><div class="line"> * 通过id获取person</div><div class="line"> * @param id</div><div class="line"> * @param callback</div><div class="line"> */</div><div class="line">module.exports.getPersonById = function (id, callback) &#123;</div><div class="line">    Person.findById(id, callback);</div><div class="line">&#125;</div><div class="line"></div><div class="line">/**</div><div class="line"> * 添加用户</div><div class="line"> * @param person</div><div class="line"> * @param callback</div><div class="line"> */</div><div class="line">module.exports.addPerson = function (person, callback) &#123;</div><div class="line">    Person.create(person, callback);</div><div class="line">&#125;</div><div class="line"></div><div class="line">/**</div><div class="line"> * 更新person</div><div class="line"> * @param id</div><div class="line"> * @param person</div><div class="line"> * @param options</div><div class="line"> * @param callback</div><div class="line"> */</div><div class="line">module.exports.updatePerson = function (id, person, options, callback) &#123;</div><div class="line">    var query = &#123;</div><div class="line">        _id: id</div><div class="line">    &#125;;</div><div class="line">    var update = &#123;</div><div class="line">        name: person.name,</div><div class="line">        age: person.age,</div><div class="line">        phoneNu: person.phoneNum,</div><div class="line">        email: person.email,</div><div class="line">        school: person.school,</div><div class="line">        description: person.description</div><div class="line">    &#125;;</div><div class="line">    Person.findOneAndUpdate(query, update, options, callback);</div><div class="line">&#125;</div><div class="line"></div><div class="line">/**</div><div class="line"> * 删除person</div><div class="line"> * @param id</div><div class="line"> * @param callback</div><div class="line"> */</div><div class="line">module.exports.deletePerson = function (id, callback) &#123;</div><div class="line">    var query = &#123;</div><div class="line">        _id: id</div><div class="line">    &#125;;</div><div class="line">    Person.remove(query, callback);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="https服务器开发"><a href="#https服务器开发" class="headerlink" title="https服务器开发"></a>https服务器开发</h3><p>server.js实现https服务器创建，实现Person对象增、删、改、查的数据库操作，实现代码如下所示：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * https API服务器</div><div class="line"> */</div><div class="line">//express</div><div class="line">var express = require('express');</div><div class="line">//app</div><div class="line">var app = express();</div><div class="line">//fs</div><div class="line">var fs = require('fs');</div><div class="line">//https</div><div class="line">var https = require('https');</div><div class="line">//privateKey</div><div class="line">var privateKey = fs.readFileSync('./certificate/privatekey.pem', 'UTF-8');</div><div class="line">//certificate</div><div class="line">var certificate = fs.readFileSync('./certificate/file.crt', 'UTF-8');</div><div class="line">//credentials</div><div class="line">var credentials = &#123;key: privateKey, cert: certificate&#125;;</div><div class="line">//httpsServer</div><div class="line">var httpsServer = https.createServer(credentials, app);</div><div class="line">//sslport</div><div class="line">var SSLPort = 3001;</div><div class="line">//body-parser</div><div class="line">var bodyParser = require('body-parser');</div><div class="line">//json</div><div class="line">app.use(bodyParser.json());</div><div class="line">//mongoose</div><div class="line">var mongoose = require('mongoose');</div><div class="line">//Person</div><div class="line">Person = require('./models/person.js');</div><div class="line">//connect</div><div class="line">mongoose.connect('mongodb://localhost/persondb');</div><div class="line">//db connection</div><div class="line">var db = mongoose.connection;</div><div class="line">//监听httpsServer</div><div class="line">httpsServer.listen(SSLPort, function () &#123;</div><div class="line">    console.log('The Server is running on:https://localhost:%s', SSLPort);</div><div class="line">&#125;);</div><div class="line">/**</div><div class="line"> * get方法</div><div class="line"> */</div><div class="line">app.get('/', function (req, res) &#123;</div><div class="line">    res.status(200).send('Welcome to visit https website!');</div><div class="line">&#125;);</div><div class="line"></div><div class="line">/**</div><div class="line"> * get persons</div><div class="line"> */</div><div class="line">app.get('/api/persons', function (req, res) &#123;</div><div class="line">    Person.getPersons(function (error, persons) &#123;</div><div class="line">        if (error) &#123;</div><div class="line">            throw error;</div><div class="line">        &#125;</div><div class="line">        res.json(persons);</div><div class="line">    &#125;);</div><div class="line">&#125;);</div><div class="line"></div><div class="line">/**</div><div class="line"> * get person by id</div><div class="line"> */</div><div class="line">app.get('/api/:_id', function (req, res) &#123;</div><div class="line">    Person.getPersonById(req.params._id, function (error, person) &#123;</div><div class="line">        if (error) &#123;</div><div class="line">            throw error;</div><div class="line">        &#125;</div><div class="line">        res.json(person);</div><div class="line">    &#125;);</div><div class="line">&#125;);</div><div class="line"></div><div class="line">/**</div><div class="line"> * add person</div><div class="line"> */</div><div class="line">app.post('/api/addPerson', function (req, res) &#123;</div><div class="line">    var person = req.body;</div><div class="line">    Person.addPerson(person, function (error, person) &#123;</div><div class="line">        if (error) &#123;</div><div class="line">            throw error;</div><div class="line">        &#125;</div><div class="line">        res.json(person);</div><div class="line">    &#125;);</div><div class="line">&#125;);</div><div class="line"></div><div class="line">/**</div><div class="line"> * update person</div><div class="line"> */</div><div class="line">app.put('/api/updatePerson/:_id', function (req, res) &#123;</div><div class="line">    var id = req.params._id;</div><div class="line">    var person = req.body;</div><div class="line">    Person.updatePerson(id, person, &#123;&#125;, function (error, person) &#123;</div><div class="line">        if (error) &#123;</div><div class="line">            throw error;</div><div class="line">        &#125;</div><div class="line">        res.json(person);</div><div class="line">    &#125;);</div><div class="line">&#125;);</div><div class="line"></div><div class="line">/**</div><div class="line"> * delete person</div><div class="line"> */</div><div class="line">app.delete('/api/deletePerson/:_id', function (req, res) &#123;</div><div class="line">    var id = req.params._id;</div><div class="line">    Person.deletePerson(id, function (error, person) &#123;</div><div class="line">        if (error) &#123;</div><div class="line">            throw error;</div><div class="line">        &#125;</div><div class="line">        res.json(person);</div><div class="line">    &#125;);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<h2 id="接口说明"><a href="#接口说明" class="headerlink" title="接口说明"></a>接口说明</h2><h3 id="获取person列表"><a href="#获取person列表" class="headerlink" title="获取person列表"></a>获取person列表</h3><p><a href="https://localhost:3001/api/persons" target="_blank" rel="external">https://localhost:3001/api/persons</a></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">[</div><div class="line">    &#123;</div><div class="line">        <span class="attr">"_id"</span>: <span class="string">"5930489bb66c6d4ab4142227"</span>,</div><div class="line">        <span class="attr">"name"</span>: <span class="string">"哒哒"</span>,</div><div class="line">        <span class="attr">"age"</span>: <span class="string">"18"</span>,</div><div class="line">        <span class="attr">"phoneNum"</span>: <span class="string">"18716321583"</span>,</div><div class="line">        <span class="attr">"email"</span>: <span class="string">"abc@gmail.com"</span>,</div><div class="line">        <span class="attr">"school"</span>: <span class="string">"qwert"</span>,</div><div class="line">        <span class="attr">"description"</span>: <span class="string">"运动"</span>,</div><div class="line">        <span class="attr">"__v"</span>: <span class="number">0</span>,</div><div class="line">        <span class="attr">"create_time"</span>: <span class="string">"2017-06-01T17:02:19.868Z"</span></div><div class="line">    &#125;</div><div class="line">]</div></pre></td></tr></table></figure>
+<h3 id="获取person通过id"><a href="#获取person通过id" class="headerlink" title="获取person通过id"></a>获取person通过id</h3><p><a href="https://localhost:3001/api/5930489bb66c6d4ab4142227" target="_blank" rel="external">https://localhost:3001/api/5930489bb66c6d4ab4142227</a></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"_id"</span>: <span class="string">"5930489bb66c6d4ab4142227"</span>,</div><div class="line">    <span class="attr">"name"</span>: <span class="string">"哒哒"</span>,</div><div class="line">    <span class="attr">"age"</span>: <span class="string">"18"</span>,</div><div class="line">    <span class="attr">"phoneNum"</span>: <span class="string">"18716321583"</span>,</div><div class="line">    <span class="attr">"email"</span>: <span class="string">"abc@gmail.com"</span>,</div><div class="line">    <span class="attr">"school"</span>: <span class="string">"qwert"</span>,</div><div class="line">    <span class="attr">"description"</span>: <span class="string">"运动"</span>,</div><div class="line">    <span class="attr">"__v"</span>: <span class="number">0</span>,</div><div class="line">    <span class="attr">"create_time"</span>: <span class="string">"2017-06-01T17:02:19.868Z"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="添加person"><a href="#添加person" class="headerlink" title="添加person"></a>添加person</h3><p><a href="https://localhost:3001/api/addPerson" target="_blank" rel="external">https://localhost:3001/api/addPerson</a></p>
+<p>//请求数据<br><figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"name"</span>: <span class="string">"猪猪"</span>,</div><div class="line">    <span class="attr">"age"</span>: <span class="string">"17"</span>,</div><div class="line">    <span class="attr">"phoneNum"</span>: <span class="string">"18716321580"</span>,</div><div class="line">    <span class="attr">"email"</span>: <span class="string">"zhuzhu@gmail.com"</span>,</div><div class="line">    <span class="attr">"school"</span>: <span class="string">"qwert"</span>,</div><div class="line">    <span class="attr">"description"</span>: <span class="string">"足球"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>//请求参数<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Content-Type：application/json</div></pre></td></tr></table></figure></p>
+<p>//请求结果<br><figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"__v"</span>: <span class="number">0</span>,</div><div class="line">    <span class="attr">"name"</span>: <span class="string">"猪猪"</span>,</div><div class="line">    <span class="attr">"age"</span>: <span class="string">"17"</span>,</div><div class="line">    <span class="attr">"phoneNum"</span>: <span class="string">"18716321580"</span>,</div><div class="line">    <span class="attr">"email"</span>: <span class="string">"zhuzhu@gmail.com"</span>,</div><div class="line">    <span class="attr">"school"</span>: <span class="string">"qwert"</span>,</div><div class="line">    <span class="attr">"description"</span>: <span class="string">"足球"</span>,</div><div class="line">    <span class="attr">"_id"</span>: <span class="string">"5930d94a40a37e04b5c67b49"</span>,</div><div class="line">    <span class="attr">"create_time"</span>: <span class="string">"2017-06-02T03:19:38.723Z"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="更新person"><a href="#更新person" class="headerlink" title="更新person"></a>更新person</h3><p><a href="https://localhost:3001/api/updatePerson/5930d94a40a37e04b5c67b49" target="_blank" rel="external">https://localhost:3001/api/updatePerson/5930d94a40a37e04b5c67b49</a><br>//请求数据<br><figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"name"</span>: <span class="string">"猪猪"</span>,</div><div class="line">    <span class="attr">"age"</span>: <span class="string">"17"</span>,</div><div class="line">    <span class="attr">"phoneNum"</span>: <span class="string">"18716321580"</span>,</div><div class="line">    <span class="attr">"email"</span>: <span class="string">"zhuzhu@gmail.com"</span>,</div><div class="line">    <span class="attr">"school"</span>: <span class="string">"qwert"</span>,</div><div class="line">    <span class="attr">"description"</span>: <span class="string">"足球、NBA"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>//请求参数<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Content-Type：application/json</div></pre></td></tr></table></figure></p>
+<p>//请求结果<br><figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"_id"</span>: <span class="string">"5930d94a40a37e04b5c67b49"</span>,</div><div class="line">    <span class="attr">"name"</span>: <span class="string">"猪猪"</span>,</div><div class="line">    <span class="attr">"age"</span>: <span class="string">"17"</span>,</div><div class="line">    <span class="attr">"phoneNum"</span>: <span class="string">"18716321580"</span>,</div><div class="line">    <span class="attr">"email"</span>: <span class="string">"zhuzhu@gmail.com"</span>,</div><div class="line">    <span class="attr">"school"</span>: <span class="string">"qwert"</span>,</div><div class="line">    <span class="attr">"description"</span>: <span class="string">"足球"</span>,</div><div class="line">    <span class="attr">"__v"</span>: <span class="number">0</span>,</div><div class="line">    <span class="attr">"create_time"</span>: <span class="string">"2017-06-02T03:19:38.723Z"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="删除person"><a href="#删除person" class="headerlink" title="删除person"></a>删除person</h3><p><a href="https://localhost:3001/api/deletePerson/5930d94a40a37e04b5c67b49" target="_blank" rel="external">https://localhost:3001/api/deletePerson/5930d94a40a37e04b5c67b49</a></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"n"</span>: <span class="number">1</span>,</div><div class="line">    <span class="attr">"ok"</span>: <span class="number">1</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="代码地址"><a href="#代码地址" class="headerlink" title="代码地址"></a><a href="https://coding.net/u/dayongxin/p/BlogCode/git/tree/master/server-code/httpsServer" target="_blank" rel="external">代码地址</a></h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a href="https://zh.wikipedia.org/wiki/%E8%B6%85%E6%96%87%E6%9C%AC%E4%BC%A0%E8%BE%93%E5%AE%89%E5%85%A8%E5%8D%8F%E8%AE%AE" target="_blank" rel="external">超文本传输安全协议</a></li>
+<li><a href="https://developer.android.com/training/articles/security-ssl.html#Concepts" target="_blank" rel="external">通过HTTPS和SSL确保安全</a></li>
+</ul>
+
+    <hr />
+
+    <h2>Share and comment</h2>
+    <div class="social-share"></div>
+    
+        <div id="disqus_thread"></div>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+
+    
+    
+</article>
+  </div>
+
+  <footer class='footer'>
+    <div class='footer-logo'>
+        <span></span>
+    </div>
+    <div class='footer-social'>
+        
+        
+    </div>
+    <p> Copyright by <a href="">@dayongxin</a> in 2017</p>
+    <p> Icons by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">Flaticon</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0</a></p>
+    <p> Powered by <a href="hexo.io">Hexo.</a></p>
+</footer>
+
+  <br>
+
+  <div id="footer-menu-container">
+		<nav class="menu">
+	
+		
+	
+	<div class='menu-item'>
+		<div class='menu-icon'>
+			<a href="/archives/">
+			<img src="/images/archive.svg" alt="">
+			</a>
+		</div>
+		<div class="menu-name">
+			<a class='menu-link' href="/archives/">
+				<span>归档</span>
+			</a>
+		</div>
+	</div>
+	
+	
+		
+		
+			<div class='menu-item'>
+			
+				<div class='menu-icon'>
+				<a href="/product">
+					<img src="/images/projects.svg" alt="">
+					</a>
+					</div>
+					
+					<div class="menu-name">
+						<a class='menu-link' href="/product">
+							<span>作品</span>
+						</a>
+					</div>
+				</a>
+			</div>
+		
+	
+		
+		
+			<div class='menu-item'>
+			
+				<div class='menu-icon'>
+				<a href="/resume">
+					<img src="/images/resume.svg" alt="">
+					</a>
+					</div>
+					
+					<div class="menu-name">
+						<a class='menu-link' href="/resume">
+							<span>简历</span>
+						</a>
+					</div>
+				</a>
+			</div>
+		
+	
+		
+		
+			<div class='menu-item'>
+			
+				<div class='menu-icon'>
+				<a href="/about">
+					<img src="/images/fun.svg" alt="">
+					</a>
+					</div>
+					
+					<div class="menu-name">
+						<a class='menu-link' href="/about">
+							<span>关于</span>
+						</a>
+					</div>
+				</a>
+			</div>
+		
+	
+</nav>
+
+	</div>
+
+  <script src="/js/instantclick.min.js"></script>
+<script src="/js/social-share.min.js"></script>
+<script src="/js/theme.js"></script>
+<script src="/js/lightbox-plus-jquery.min.js"></script>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qutang-github-io.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+<script data-no-instant>
+InstantClick.on('change', function(isInitialLoad) {
+  if (isInitialLoad === false) {
+    if (typeof MathJax !== 'undefined') // support MathJax
+      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    if (typeof prettyPrint !== 'undefined') // support google code prettify
+      prettyPrint();
+    if (typeof _hmt !== 'undefined')  // support 百度统计
+      _hmt.push(['_trackPageview', location.pathname + location.search]);
+    if (typeof ga !== 'undefined')  // support google analytics
+        ga('send', 'pageview', location.pathname + location.search);
+    changeLayoutOnTouchScreen();
+
+    //
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qutang-github-io.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    }
+});
+InstantClick.init();
+</script>
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+</html>

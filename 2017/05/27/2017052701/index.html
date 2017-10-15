@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  
+  
+  
+  
+    
+  
+      <title>Android加固损坏渠道信息问题解决 - 哒哒</title>
+  
+  
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+
+  <link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/gridlex.min.css">
+<link rel="stylesheet" href="/css/skeleton.css">
+<link rel="stylesheet" href="/css/theme.css">
+<link rel="stylesheet" href="/css/share.min.css">
+<link rel="stylesheet" href="/css/lightbox.min.css">
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+  });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+
+</head>
+<body style="display: flex; flex-direction: column; min-height: 100vh;">
+  <header class="header">
+	<div class="header-title">
+		<div><a href="/">哒哒</a></div>
+	</div>
+	<div id="header-menu-container">
+		<nav class="menu">
+	
+		
+	
+	<div class='menu-item'>
+		<div class='menu-icon'>
+			<a href="/archives/">
+			<img src="/images/archive.svg" alt="">
+			</a>
+		</div>
+		<div class="menu-name">
+			<a class='menu-link' href="/archives/">
+				<span>归档</span>
+			</a>
+		</div>
+	</div>
+	
+	
+		
+		
+			<div class='menu-item'>
+			
+				<div class='menu-icon'>
+				<a href="/product">
+					<img src="/images/projects.svg" alt="">
+					</a>
+					</div>
+					
+					<div class="menu-name">
+						<a class='menu-link' href="/product">
+							<span>作品</span>
+						</a>
+					</div>
+				</a>
+			</div>
+		
+	
+		
+		
+			<div class='menu-item'>
+			
+				<div class='menu-icon'>
+				<a href="/resume">
+					<img src="/images/resume.svg" alt="">
+					</a>
+					</div>
+					
+					<div class="menu-name">
+						<a class='menu-link' href="/resume">
+							<span>简历</span>
+						</a>
+					</div>
+				</a>
+			</div>
+		
+	
+		
+		
+			<div class='menu-item'>
+			
+				<div class='menu-icon'>
+				<a href="/about">
+					<img src="/images/fun.svg" alt="">
+					</a>
+					</div>
+					
+					<div class="menu-name">
+						<a class='menu-link' href="/about">
+							<span>关于</span>
+						</a>
+					</div>
+				</a>
+			</div>
+		
+	
+</nav>
+
+	</div>
+</header>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div style="flex: 1;">
+      <style>
+    body {
+        background-color: white;
+    }
+</style>
+
+<article class="article">
+
+    <!-- Title -->
+
+    
+        
+            
+                
+                
+            
+        
+    
+
+    <div class='article-header'>
+         <div class='article-logo'>
+            <a href="/categories/Android/">
+                <img src="/images/Android.svg" alt="">
+            </a>
+         </div>
+         <h1 class='article-title'>
+            <a href="/2017/05/27/2017052701/">
+                Android加固损坏渠道信息问题解决
+            </a>
+        </h1>
+    </div>
+   
+    <!-- Date and Author -->
+    <p>
+       	2017-05-27
+        by dayongxin
+    </p>
+    <p>
+        
+
+	<label><a href="/tags/加固渠道/">#加固渠道</a></label>
+
+
+    </p>
+	<hr />
+
+    <!-- Gallery -->
+    
+    
+
+    <!-- Content -->
+    <p>最近在使用美团渠道打包工具walle，并对渠道包进行加固操作。按照这个流程操作，结果统计平台并没有统计到渠道信息，最终分析得知加固破坏了渠道信息，这篇文章就是为了解决这个问题。</p>
+<a id="more"></a>
+<hr>
+<p>本文是<strong>哒哒</strong>原创，发表在 <a href="https://www.dayongxin.com">https://www.dayongxin.com</a><br>请阅读原文<strong>支持原创</strong> <a href="https://www.dayongxin.com/2017/05/27/2017052701/">https://www.dayongxin.com/2017/05/27/2017052701/</a></p>
+<hr>
+<p>在此使用的渠道打包工具是美团的<a href="https://github.com/Meituan-Dianping/walle" target="_blank" rel="external">walle</a>，需要添加相关代码到项目中，具体代码详见walle。</p>
+<h2 id="打渠道包、360加固"><a href="#打渠道包、360加固" class="headerlink" title="打渠道包、360加固"></a>打渠道包、360加固</h2><p>将命令行定位到项目根目录下或者直接打开Android Studio的Terminal，使用以下指令进行渠道打包：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">./gradlew clean assembleReleaseChannels</div></pre></td></tr></table></figure></p>
+<p>使用上面指令打包的时候有可能会出现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gradlew: Permission denied</div></pre></td></tr></table></figure></p>
+<p>使用下面指令可以解决：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">chmod +x gradlew</div></pre></td></tr></table></figure></p>
+<p>使用360加固助手对渠道包apk进行加固操作，将加固成功的APP安装到手机，并没有渠道信息正常通过Toast打印出来，应该是360加固破坏了渠道信息！</p>
+<h2 id="打签名包、乐固加固"><a href="#打签名包、乐固加固" class="headerlink" title="打签名包、乐固加固"></a>打签名包、乐固加固</h2><p>在使用360加固失败之后，网上也有很多讲360加固存在很多兼容性问题，不知道360加固与乐加固在加固应用的原理等方面有什么差别？后面换用了乐加固对APP进行加固。测试Demo对应的签名文件mykey.jks的store和alias密码为：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">key.store.password=qwertyuiop</div><div class="line">key.alias.password=qwertyuiop12345</div></pre></td></tr></table></figure></p>
+<p>打包签名的apk，并将其上传到乐加固平台。加固成功之后从乐加固平台下载需再次签名的apk，定位到Android SDK目录下：</p>
+<ul>
+<li>使用Android SDK的zipalign工具对apk进行对其优化操作</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">./zipalign -v <span class="number">4</span> /Users/dayongxin/Desktop/lejiagu/apks/com.dyx.amcrd_legu.apk</div><div class="line">/Users/dayongxin/Desktop/lejiagu/apks/com.dyx.amcrd_legu_zipalign.apk</div></pre></td></tr></table></figure>
+<p>指令说明：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">./zipalign -v <span class="number">4</span></div><div class="line">[待对齐优化操作的apk文件路径]</div><div class="line">[对齐优化操作后的apk文件路径]</div></pre></td></tr></table></figure></p>
+<ul>
+<li>使用V2签名工具对加固后的apk再次签名</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">./apksigner sign --ks /Users/dayongxin/Desktop/Blog_Coding_Project/blog_code/BlogCode</div><div class="line">/AndroidMultiChannelReinforceDemo/keys/mykey.jks</div><div class="line">/Users/dayongxin/Desktop/lejiagu/apks/com.dyx.amcrd_legu_zipalign.apk</div></pre></td></tr></table></figure>
+<p>指令说明：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">./apksigner sign --ks [签名文件路径] [对齐优化操作后的apk文件路径]</div></pre></td></tr></table></figure></p>
+<p>再次签名的时候会出现如下图所示的错误：<br><img src="http://oqle0m5m6.bkt.clouddn.com/5D7D24C6-AF10-474A-8CDF-08ACABD22E66.png" alt=""><br>从别名mykey获取key的时候失败，密码错误？会不会是因为store密码跟别名密码不一样呢？下面进行更换签名文件别名的密码操作。</p>
+<h2 id="更改签名密码或别名密码"><a href="#更改签名密码或别名密码" class="headerlink" title="更改签名密码或别名密码"></a>更改签名密码或别名密码</h2><p>在此进行别名密码修改操作，将命令行切到mykey.jks目录，运行下面指令：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">keytool -keypasswd -keystore mykey.jks -alias mykey</div></pre></td></tr></table></figure></p>
+<p>更改操作如下：<br><img src="http://oqle0m5m6.bkt.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202017-05-27%20%E4%B8%8B%E5%8D%882.44.21.png" alt=""></p>
+<p>更改之后mykey.jks的store和alias密码为：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">key.store.password=qwertyuiop</div><div class="line">key.alias.password=qwertyuiop</div></pre></td></tr></table></figure></p>
+<h2 id="完整流程"><a href="#完整流程" class="headerlink" title="完整流程"></a>完整流程</h2><p>打签名包、乐谷加固、再次签名跟上面“打签名包、乐固加固”一节流程相同，加固签名完成之后要进行检测，使用下面指令进行：</p>
+<ul>
+<li>检查是否使用V2签名：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">java -jar /Users/dayongxin/Desktop/lejiagu/CheckAndroidV2Signature.jar</div><div class="line">/Users/dayongxin/Desktop/lejiagu/apks/com.dyx.amcrd_legu_zipalign.apk</div></pre></td></tr></table></figure>
+<p>CheckAndroidV2Signature.jar<a href="https://github.com/bihe0832/AndroidGetAPKInfo/blob/master/CheckAndroidV2Signature.jar" target="_blank" rel="external">下载地址</a></p>
+<p>指令说明：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">java -jar [CheckAndroidV2Signature.jar文件路径] [对齐优化操作后的apk文件路径]</div></pre></td></tr></table></figure></p>
+<p>使用V2签名执行成功结果为：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"ret"</span>: <span class="number">0</span>,</div><div class="line">    <span class="attr">"msg"</span>: <span class="string">"ok"</span>,</div><div class="line">    <span class="attr">"isV2"</span>: <span class="literal">true</span>,</div><div class="line">    <span class="attr">"isV2OK"</span>: <span class="literal">true</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>使用V2签名执行失败结果为：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="string">"ret"</span>: <span class="number">0</span>,</div><div class="line">    <span class="string">"msg"</span>: <span class="string">"ok"</span>,</div><div class="line">    <span class="string">"isV2"</span>: <span class="keyword">false</span>,</div><div class="line">    <span class="string">"isV2OK"</span>: <span class="keyword">false</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>V2签名校验成功之后就可以进行walle渠道打包啦！</p>
+<ul>
+<li>使用walle打渠道包</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">java -jar /Users/dayongxin/Desktop/lejiagu/walle-cli-all.jar</div><div class="line">batch -f</div><div class="line">/Users/dayongxin/Desktop/lejiagu/channelinfo/config.txt</div><div class="line">/Users/dayongxin/Desktop/lejiagu/apks/com.dyx.amcrd_legu_zipalign.apk</div><div class="line">/Users/dayongxin/Desktop/lejiagu/qudaoapks</div></pre></td></tr></table></figure>
+<p>walle-cli-all.jar<a href="https://github.com/Meituan-Dianping/walle/blob/master/walle-cli/walle-cli-all.jar" target="_blank" rel="external">下载地址</a></p>
+<p>指令说明：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">java -jar</div><div class="line">[walle-cli-all.jar文件路径]</div><div class="line">batch -f</div><div class="line">[渠道信息文件]</div><div class="line">[对齐优化操作后的apk文件路径]</div><div class="line">[生成渠道包文件夹]</div></pre></td></tr></table></figure></p>
+<p>config.txt的内容为：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">baidu</div><div class="line"><span class="number">360</span></div><div class="line">qq</div><div class="line">wandoujia</div><div class="line">googleplay</div><div class="line">huawei</div></pre></td></tr></table></figure></p>
+<p>使用这个流程操作完成之后，打开APP就可以正常打印渠道信息啦！</p>
+<h2 id="项目代码"><a href="#项目代码" class="headerlink" title="项目代码"></a><a href="https://coding.net/u/dayongxin/p/BlogCode/git/tree/master/AndroidMultiChannelReinforceDemo" target="_blank" rel="external">项目代码</a></h2><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>至此，apk签名打包、加固、再次签名、签入渠道信息已经完成，下图总结了整个流程：</p>
+<p><img src="http://oqle0m5m6.bkt.clouddn.com/APP%E6%89%93%E5%8C%85%E7%AD%BE%E5%90%8D%E5%8A%A0%E5%9B%BA%E6%B8%A0%E9%81%93%E6%B5%81%E7%A8%8B%E5%9B%BE.png" alt=""></p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>在后续的文章中，将会研究：</p>
+<ul>
+<li>Apk加固的原理是什么？</li>
+<li>360加固为什么会损坏渠道信息？</li>
+<li>为什么Store密码和Alias密码不同再次签名会失败？</li>
+<li>美团渠道打包的原理是什么呢？</li>
+</ul>
+
+    <hr />
+
+    <h2>Share and comment</h2>
+    <div class="social-share"></div>
+    
+        <div id="disqus_thread"></div>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+
+    
+    
+</article>
+  </div>
+
+  <footer class='footer'>
+    <div class='footer-logo'>
+        <span></span>
+    </div>
+    <div class='footer-social'>
+        
+        
+    </div>
+    <p> Copyright by <a href="">@dayongxin</a> in 2017</p>
+    <p> Icons by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">Flaticon</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0</a></p>
+    <p> Powered by <a href="hexo.io">Hexo.</a></p>
+</footer>
+
+  <br>
+
+  <div id="footer-menu-container">
+		<nav class="menu">
+	
+		
+	
+	<div class='menu-item'>
+		<div class='menu-icon'>
+			<a href="/archives/">
+			<img src="/images/archive.svg" alt="">
+			</a>
+		</div>
+		<div class="menu-name">
+			<a class='menu-link' href="/archives/">
+				<span>归档</span>
+			</a>
+		</div>
+	</div>
+	
+	
+		
+		
+			<div class='menu-item'>
+			
+				<div class='menu-icon'>
+				<a href="/product">
+					<img src="/images/projects.svg" alt="">
+					</a>
+					</div>
+					
+					<div class="menu-name">
+						<a class='menu-link' href="/product">
+							<span>作品</span>
+						</a>
+					</div>
+				</a>
+			</div>
+		
+	
+		
+		
+			<div class='menu-item'>
+			
+				<div class='menu-icon'>
+				<a href="/resume">
+					<img src="/images/resume.svg" alt="">
+					</a>
+					</div>
+					
+					<div class="menu-name">
+						<a class='menu-link' href="/resume">
+							<span>简历</span>
+						</a>
+					</div>
+				</a>
+			</div>
+		
+	
+		
+		
+			<div class='menu-item'>
+			
+				<div class='menu-icon'>
+				<a href="/about">
+					<img src="/images/fun.svg" alt="">
+					</a>
+					</div>
+					
+					<div class="menu-name">
+						<a class='menu-link' href="/about">
+							<span>关于</span>
+						</a>
+					</div>
+				</a>
+			</div>
+		
+	
+</nav>
+
+	</div>
+
+  <script src="/js/instantclick.min.js"></script>
+<script src="/js/social-share.min.js"></script>
+<script src="/js/theme.js"></script>
+<script src="/js/lightbox-plus-jquery.min.js"></script>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qutang-github-io.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+<script data-no-instant>
+InstantClick.on('change', function(isInitialLoad) {
+  if (isInitialLoad === false) {
+    if (typeof MathJax !== 'undefined') // support MathJax
+      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    if (typeof prettyPrint !== 'undefined') // support google code prettify
+      prettyPrint();
+    if (typeof _hmt !== 'undefined')  // support 百度统计
+      _hmt.push(['_trackPageview', location.pathname + location.search]);
+    if (typeof ga !== 'undefined')  // support google analytics
+        ga('send', 'pageview', location.pathname + location.search);
+    changeLayoutOnTouchScreen();
+
+    //
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qutang-github-io.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    }
+});
+InstantClick.init();
+</script>
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+</html>
