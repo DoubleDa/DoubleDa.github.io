@@ -1,196 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-
-  <!-- Basic Page Needs
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta charset="utf-8">
   
+  <title>Node.js实现自签名https api接口 | 哒哒</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="使用Node.js、MongoDB、Express技术栈实现自签名https api服务器。">
+<meta name="keywords" content="https接口">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node.js实现自签名https api接口">
+<meta property="og:url" content="http://www.dayongxin.com/2017/06/02/2017060201/index.html">
+<meta property="og:site_name" content="哒哒">
+<meta property="og:description" content="使用Node.js、MongoDB、Express技术栈实现自签名https api服务器。">
+<meta property="og:image" content="https://www.instantssl.com/images/http-vs-https.png">
+<meta property="og:image" content="http://oqle0m5m6.bkt.clouddn.com/https%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86new.png">
+<meta property="og:image" content="http://oqle0m5m6.bkt.clouddn.com/748806E3-EF7E-4A02-8021-4B401DD3DC56.png">
+<meta property="og:image" content="http://oqle0m5m6.bkt.clouddn.com/Schema%E3%80%81Model%E3%80%81Entity.png">
+<meta property="og:updated_time" content="2017-06-06T13:05:18.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Node.js实现自签名https api接口">
+<meta name="twitter:description" content="使用Node.js、MongoDB、Express技术栈实现自签名https api服务器。">
+<meta name="twitter:image" content="https://www.instantssl.com/images/http-vs-https.png">
   
+    <link rel="alternate" href="/atom.xml" title="哒哒" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
   
   
     
   
-      <title>Node.js实现自签名https api接口 - 哒哒</title>
+  <link rel="stylesheet" href="/css/style.css">
   
-  
-  <meta name="description" content="">
-  <meta name="author" content="">
-
-  <!-- Mobile Specific Metas
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- FONT
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
-
-  <!-- CSS
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-
-  <link rel="stylesheet" href="/css/normalize.css">
-<link rel="stylesheet" href="/css/font-awesome.min.css">
-<link rel="stylesheet" href="/css/gridlex.min.css">
-<link rel="stylesheet" href="/css/skeleton.css">
-<link rel="stylesheet" href="/css/theme.css">
-<link rel="stylesheet" href="/css/share.min.css">
-<link rel="stylesheet" href="/css/lightbox.min.css">
-
-  <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-  });
-  </script>
-  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-
-  
-
-  <!-- Favicon
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="icon" type="image/png" href="/images/favicon.png">
 
 </head>
-<body style="display: flex; flex-direction: column; min-height: 100vh;">
-  <header class="header">
-	<div class="header-title">
-		<div><a href="/">哒哒</a></div>
-	</div>
-	<div id="header-menu-container">
-		<nav class="menu">
-	
-		
-	
-	<div class='menu-item'>
-		<div class='menu-icon'>
-			<a href="/archives/">
-			<img src="/images/archive.svg" alt="">
-			</a>
-		</div>
-		<div class="menu-name">
-			<a class='menu-link' href="/archives/">
-				<span>归档</span>
-			</a>
-		</div>
-	</div>
-	
-	
-		
-		
-			<div class='menu-item'>
-			
-				<div class='menu-icon'>
-				<a href="/product">
-					<img src="/images/projects.svg" alt="">
-					</a>
-					</div>
-					
-					<div class="menu-name">
-						<a class='menu-link' href="/product">
-							<span>作品</span>
-						</a>
-					</div>
-				</a>
-			</div>
-		
-	
-		
-		
-			<div class='menu-item'>
-			
-				<div class='menu-icon'>
-				<a href="/resume">
-					<img src="/images/resume.svg" alt="">
-					</a>
-					</div>
-					
-					<div class="menu-name">
-						<a class='menu-link' href="/resume">
-							<span>简历</span>
-						</a>
-					</div>
-				</a>
-			</div>
-		
-	
-		
-		
-			<div class='menu-item'>
-			
-				<div class='menu-icon'>
-				<a href="/about">
-					<img src="/images/fun.svg" alt="">
-					</a>
-					</div>
-					
-					<div class="menu-name">
-						<a class='menu-link' href="/about">
-							<span>关于</span>
-						</a>
-					</div>
-				</a>
-			</div>
-		
-	
-</nav>
 
-	</div>
-</header>
-
-  <!-- Primary Page Layout
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <div style="flex: 1;">
-      <style>
-    body {
-        background-color: white;
-    }
-</style>
-
-<article class="article">
-
-    <!-- Title -->
-
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
     
+    <div id="header-inner" class="inner">
+      <nav id="sub-nav">
         
-            
-                
-                
-            
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
         
-    
-
-    <div class='article-header'>
-         <div class='article-logo'>
-            <a href="/categories/Node-js/">
-                <img src="/images/Node.js.svg" alt="">
-            </a>
-         </div>
-         <h1 class='article-title'>
-            <a href="/2017/06/02/2017060201/">
-                Node.js实现自签名https Api接口
-            </a>
-        </h1>
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://www.dayongxin.com"></form>
+      </div>
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">首页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/product">作品</a>
+        
+          <a class="main-nav-link" href="/resume">简历</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
+        
+      </nav>
+      
     </div>
-   
-    <!-- Date and Author -->
-    <p>
-       	2017-06-02
-        by dayongxin
-    </p>
-    <p>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">哒哒</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Keep engineers playfully</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-2017060201" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/06/02/2017060201/" class="article-date">
+  <time datetime="2017-06-02T02:09:40.000Z" itemprop="datePublished">2017-06-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Node-js/">Node.js</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
         
+  
+    <h1 class="article-title" itemprop="name">
+      Node.js实现自签名https api接口
+    </h1>
+  
 
-	<label><a href="/tags/https接口/">#Https接口</a></label>
-
-
-    </p>
-	<hr />
-
-    <!-- Gallery -->
+      </header>
     
-    
-
-    <!-- Content -->
-    <p>使用Node.js、MongoDB、Express技术栈实现自签名https api服务器。</p>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <p>使用Node.js、MongoDB、Express技术栈实现自签名https api服务器。</p>
 <a id="more"></a>
 <hr>
 <p>本文是<strong>哒哒</strong>原创，发表在 <a href="https://www.dayongxin.com">https://www.dayongxin.com</a><br>请阅读原文<strong>支持原创</strong> <a href="https://www.dayongxin.com/2017/06/02/2017060201/">https://www.dayongxin.com/2017/06/02/2017060201/</a></p>
@@ -255,161 +174,220 @@
 <li><a href="https://developer.android.com/training/articles/security-ssl.html#Concepts" target="_blank" rel="external">通过HTTPS和SSL确保安全</a></li>
 </ul>
 
-    <hr />
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.dayongxin.com/2017/06/02/2017060201/" data-id="cj8tsgcr80006b8rajlajs6x0" class="article-share-link">分享</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/https接口/">https接口</a></li></ul>
 
-    <h2>Share and comment</h2>
-    <div class="social-share"></div>
+    </footer>
+  </div>
+  
     
-        <div id="disqus_thread"></div>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-    
-
-    
-    
-</article>
+ <script src="/jquery/jquery.min.js"></script>
+  <div id="random_posts">
+    <h2>推荐文章</h2>
+    <div class="random_posts_ul">
+      <script>
+          var random_count =4
+          var site = {BASE_URI:'/'};
+          function load_random_posts(obj) {
+              var arr=site.posts;
+              if (!obj) return;
+              // var count = $(obj).attr('data-count') || 6;
+              for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp);
+              arr = arr.slice(0, random_count);
+              var html = '<ul>';
+            
+              for(var j=0;j<arr.length;j++){
+                var item=arr[j];
+                html += '<li><strong>' + 
+                item.date + ':&nbsp;&nbsp;<a href="' + (site.BASE_URI+item.uri) + '">' + 
+                (item.title || item.uri) + '</a></strong>';
+                if(item.excerpt){
+                  html +='<div class="post-excerpt">'+item.excerpt+'</div>';
+                }
+                html +='</li>';
+                
+              }
+              $(obj).html(html + '</ul>');
+          }
+          $('.random_posts_ul').each(function () {
+              var c = this;
+              if (!site.posts || !site.posts.length){
+                  $.getJSON(site.BASE_URI + 'js/posts.js',function(json){site.posts = json;load_random_posts(c)});
+              } 
+               else{
+                load_random_posts(c);
+              }
+          });
+      </script>
+    </div>
   </div>
 
-  <footer class='footer'>
-    <div class='footer-logo'>
-        <span></span>
-    </div>
-    <div class='footer-social'>
-        
-        
-    </div>
-    <p> Copyright by <a href="">@dayongxin</a> in 2017</p>
-    <p> Icons by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">Flaticon</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0</a></p>
-    <p> Powered by <a href="hexo.io">Hexo.</a></p>
-</footer>
-
-  <br>
-
-  <div id="footer-menu-container">
-		<nav class="menu">
-	
-		
-	
-	<div class='menu-item'>
-		<div class='menu-icon'>
-			<a href="/archives/">
-			<img src="/images/archive.svg" alt="">
-			</a>
-		</div>
-		<div class="menu-name">
-			<a class='menu-link' href="/archives/">
-				<span>归档</span>
-			</a>
-		</div>
-	</div>
-	
-	
-		
-		
-			<div class='menu-item'>
-			
-				<div class='menu-icon'>
-				<a href="/product">
-					<img src="/images/projects.svg" alt="">
-					</a>
-					</div>
-					
-					<div class="menu-name">
-						<a class='menu-link' href="/product">
-							<span>作品</span>
-						</a>
-					</div>
-				</a>
-			</div>
-		
-	
-		
-		
-			<div class='menu-item'>
-			
-				<div class='menu-icon'>
-				<a href="/resume">
-					<img src="/images/resume.svg" alt="">
-					</a>
-					</div>
-					
-					<div class="menu-name">
-						<a class='menu-link' href="/resume">
-							<span>简历</span>
-						</a>
-					</div>
-				</a>
-			</div>
-		
-	
-		
-		
-			<div class='menu-item'>
-			
-				<div class='menu-icon'>
-				<a href="/about">
-					<img src="/images/fun.svg" alt="">
-					</a>
-					</div>
-					
-					<div class="menu-name">
-						<a class='menu-link' href="/about">
-							<span>关于</span>
-						</a>
-					</div>
-				</a>
-			</div>
-		
-	
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2017/05/27/2017052701/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">Android加固损坏渠道信息问题解决</div>
+    </a>
+  
 </nav>
 
-	</div>
+  
+</article>
+ 
+     
+  <div class="comments" id="comments">
+    
+     
+       
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+       
+      
+      
+  </div>
+ 
+  
 
-  <script src="/js/instantclick.min.js"></script>
-<script src="/js/social-share.min.js"></script>
-<script src="/js/theme.js"></script>
-<script src="/js/lightbox-plus-jquery.min.js"></script>
+</section>
+           
+    <aside id="sidebar">
+  
+    
+    <div class="widget-wrap">
+    
+      <div class="widget" id="toc-widget-fixed">
+      
+        <strong class="toc-title">文章目录</strong>
+        <div class="toc-widget-list">
+              <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTPS简介"><span class="toc-number">1.</span> <span class="toc-text">HTTPS简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP与HTTPS的区别"><span class="toc-number">1.1.</span> <span class="toc-text">HTTP与HTTPS的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTPS是如何工作的？"><span class="toc-number">1.2.</span> <span class="toc-text">HTTPS是如何工作的？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是HTTPS证书？"><span class="toc-number">1.3.</span> <span class="toc-text">什么是HTTPS证书？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#为什么需要SSL证书？"><span class="toc-number">1.4.</span> <span class="toc-text">为什么需要SSL证书？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTPS协议的优点"><span class="toc-number">1.5.</span> <span class="toc-text">HTTPS协议的优点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么样的HTTPS连接可被信任？"><span class="toc-number">1.6.</span> <span class="toc-text">什么样的HTTPS连接可被信任？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#自制秘钥、证书"><span class="toc-number">2.</span> <span class="toc-text">自制秘钥、证书</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建开发环境"><span class="toc-number">3.</span> <span class="toc-text">搭建开发环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务器开发"><span class="toc-number">4.</span> <span class="toc-text">服务器开发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#开发Schema"><span class="toc-number">4.1.</span> <span class="toc-text">开发Schema</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#https服务器开发"><span class="toc-number">4.2.</span> <span class="toc-text">https服务器开发</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#接口说明"><span class="toc-number">5.</span> <span class="toc-text">接口说明</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#获取person列表"><span class="toc-number">5.1.</span> <span class="toc-text">获取person列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#获取person通过id"><span class="toc-number">5.2.</span> <span class="toc-text">获取person通过id</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#添加person"><span class="toc-number">5.3.</span> <span class="toc-text">添加person</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#更新person"><span class="toc-number">5.4.</span> <span class="toc-text">更新person</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#删除person"><span class="toc-number">5.5.</span> <span class="toc-text">删除person</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码地址"><span class="toc-number">6.</span> <span class="toc-text">代码地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文献"><span class="toc-number">7.</span> <span class="toc-text">参考文献</span></a></li></ol>
+          </div>
+      </div>
+    </div>
+
+  
+    
+
+  
+    
+  
+    
+  
+    
+
+  
+    
+  
+</aside>
+
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-left">
+      &copy; 2014 - 2017 dayongxin&nbsp;|&nbsp;
+      主题 <a href="https://github.com/giscafer/hexo-theme-cafe/" target="_blank">Cafe</a>
+    </div>
+     <div id="footer-right">
+      联系方式&nbsp;|&nbsp;youemail@outlook.com
+    </div>
+  </div>
+</footer>
+ <script src="/jquery/jquery.min.js"></script>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">首页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/product" class="mobile-nav-link">作品</a>
+  
+    <a href="/resume" class="mobile-nav-link">简历</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    <img class="back-to-top-btn" src="/images/fly-to-top.png"/>
 <script>
-
-/**
-*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
-/*
-var disqus_config = function () {
-this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-};
-*/
-    (function() { // DON'T EDIT BELOW THIS LINE
-    var d = document, s = d.createElement('script');
-    s.src = 'https://qutang-github-io.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-    })();
-    </script>
-<script data-no-instant>
-InstantClick.on('change', function(isInitialLoad) {
-  if (isInitialLoad === false) {
-    if (typeof MathJax !== 'undefined') // support MathJax
-      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    if (typeof prettyPrint !== 'undefined') // support google code prettify
-      prettyPrint();
-    if (typeof _hmt !== 'undefined')  // support 百度统计
-      _hmt.push(['_trackPageview', location.pathname + location.search]);
-    if (typeof ga !== 'undefined')  // support google analytics
-        ga('send', 'pageview', location.pathname + location.search);
-    changeLayoutOnTouchScreen();
-
-    //
-    var d = document, s = d.createElement('script');
-    s.src = 'https://qutang-github-io.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-    }
-});
-InstantClick.init();
+// Elevator script included on the page, already.
+window.onload = function() {
+  var elevator = new Elevator({
+    selector:'.back-to-top-btn',
+    element: document.querySelector('.back-to-top-btn'),
+    duration: 1000 // milliseconds
+  });
+}
 </script>
+      
 
-<!-- End Document
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "e2fb4051c49842688ce669e634bc983f",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+    
+
+  
+
+
+
+
+
+
+
+<!-- author:forvoid begin -->
+<!-- author:forvoid begin -->
+
+<!-- author:forvoid end -->
+
+<!-- author:forvoid end -->
+
+
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      })
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      })
+    </script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+ <script src="/js/is.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+<script src="/js/elevator.js"></script>
+  </div>
 </body>
 </html>
