@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android OkHttp完全解析(上)：OkHttp用法 | 哒哒</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="OkHttp3用法">
+<meta name="keywords" content="OkHttp用法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android OkHttp完全解析(上)：OkHttp用法">
+<meta property="og:url" content="http://www.dayongxin.com/2017/10/17/android-okhttp-up/index.html">
+<meta property="og:site_name" content="哒哒">
+<meta property="og:description" content="OkHttp3用法">
+<meta property="og:updated_time" content="2017-10-18T16:32:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android OkHttp完全解析(上)：OkHttp用法">
+<meta name="twitter:description" content="OkHttp3用法">
+  
+    <link rel="alternate" href="/atom.xml" title="哒哒" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    
+    <div id="header-inner" class="inner">
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://www.dayongxin.com"></form>
+      </div>
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">首页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/product">作品</a>
+        
+          <a class="main-nav-link" href="/resume">简历</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
+        
+      </nav>
+      
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">哒哒</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Keep engineers playfully</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-android-okhttp-up" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/10/17/android-okhttp-up/" class="article-date">
+  <time datetime="2017-10-17T14:57:49.000Z" itemprop="datePublished">2017-10-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Android OkHttp完全解析(上)：OkHttp用法
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <p>OkHttp3用法</p>
+<a id="more"></a>
+<h2 id="添加依赖库"><a href="#添加依赖库" class="headerlink" title="添加依赖库"></a>添加依赖库</h2><p>在使用OkHttp之前需要在app级别的build.gradle引入以下代码：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * okhttp3</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="comment">//okhttp-signpost</span></div><div class="line"><span class="keyword">compile</span> <span class="string">'se.akerfeldt:okhttp-signpost:1.1.0'</span></div><div class="line"><span class="comment">//okhttp</span></div><div class="line"><span class="keyword">compile</span> <span class="string">'com.squareup.okhttp3:okhttp:3.9.0'</span></div><div class="line"><span class="comment">//signpost-core</span></div><div class="line"><span class="keyword">compile</span> <span class="string">'oauth.signpost:signpost-core:1.2.1.2'</span></div><div class="line"><span class="comment">//logging-interceptor</span></div><div class="line"><span class="keyword">compile</span> <span class="string">'com.squareup.okhttp3:logging-interceptor:3.6.0'</span></div><div class="line"><span class="comment">//stetho-okhttp3</span></div><div class="line"><span class="keyword">compile</span> <span class="string">'com.facebook.stetho:stetho-okhttp3:1.3.0'</span></div></pre></td></tr></table></figure>
+<h2 id="OkHttp的get请求"><a href="#OkHttp的get请求" class="headerlink" title="OkHttp的get请求"></a>OkHttp的get请求</h2><h3 id="发送和接受网络请求"><a href="#发送和接受网络请求" class="headerlink" title="发送和接受网络请求"></a>发送和接受网络请求</h3><ul>
+<li>初始化OkHttpClient和创建Request对象</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">OkHttpClient client = <span class="keyword">new</span> OkHttpClient();</div><div class="line">Request request = <span class="keyword">new</span> Request.Builder()</div><div class="line">        .url(<span class="string">"https://www.dayongxin.com/"</span>)</div><div class="line">        .build();</div></pre></td></tr></table></figure>
+<ul>
+<li>添加查询参数，OkHttp提供了HttpUrl实现URL的拼接</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">HttpUrl.Builder builder = HttpUrl.parse(<span class="string">"http://api.dayongxin.com/imgs"</span>).newBuilder();</div><div class="line">builder.addQueryParameter(<span class="string">"version"</span>, <span class="string">"1.0"</span>);</div><div class="line">builder.addQueryParameter(<span class="string">"system"</span>, <span class="string">"android"</span>);</div><div class="line">builder.addQueryParameter(<span class="string">"date"</span>, <span class="string">"2017-10-17"</span>);</div><div class="line">String url = builder.build().toString();</div><div class="line">Request request = <span class="keyword">new</span> Request.Builder()</div><div class="line">        .url(url)</div><div class="line">        .build();</div></pre></td></tr></table></figure>
+<ul>
+<li>添加Headers参数</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Request request = <span class="keyword">new</span> Request.Builder()</div><div class="line">						.header(<span class="string">"Authorization"</span>, <span class="string">"bearer xxxx"</span>).url(<span class="string">""</span>).build();</div></pre></td></tr></table></figure>
+<h3 id="同步的方式进行网络访问"><a href="#同步的方式进行网络访问" class="headerlink" title="同步的方式进行网络访问"></a>同步的方式进行网络访问</h3><p>创建Call对象使用同步的方式拦截网络请求：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Response response = client.newCall(request).execute();</div></pre></td></tr></table></figure>
+<p>Android不允许在UI线程进行网络请求，在使用OkHttp同步方式进行网络请求时需要开启子线程或者通过后台Service进行网络请求，轻量级的网络请求可以使用AsyncTask。</p>
+<h3 id="异步的方式进行网络访问"><a href="#异步的方式进行网络访问" class="headerlink" title="异步的方式进行网络访问"></a>异步的方式进行网络访问</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">client.newCall(request).enqueue(<span class="keyword">new</span> Callback() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Call call, IOException e)</span> </span>&#123;</div><div class="line">        e.printStackTrace();</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Call call, Response response)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        <span class="keyword">if</span> (!response.isSuccessful()) &#123;</div><div class="line">            <span class="comment">//失败</span></div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Unexpected code "</span> + response);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="comment">//成功</span></div><div class="line">            <span class="keyword">final</span> String result = response.body().string();</div><div class="line">            runOnUiThread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">                <span class="meta">@Override</span></div><div class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                    <span class="keyword">if</span> (mTextView != <span class="keyword">null</span> &amp;&amp; !TextUtils.isEmpty(result)) &#123;</div><div class="line">                        mTextView.setText(result);</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>OkHttp使用异步方式进行网络请求是在子线程中进行，所以并不能将获取到的数据直接在UI线程的控件中显示，需要使用runOnUiThread()切换到UI线程进行数据的显示。</p>
+<h3 id="处理网络响应"><a href="#处理网络响应" class="headerlink" title="处理网络响应"></a>处理网络响应</h3><p>假设请求没有被取消，并且没有连接问题，那么onResponse()方法将被触发。它传递一个响应对象，该对象可用于检查状态代码、响应体和返回的任何头信息。</p>
+<ul>
+<li>访问响应对象的isSuccessful()</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (!response.isSuccessful()) &#123;</div><div class="line">    <span class="comment">//失败</span></div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Unexpected code "</span> + response);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>获取响应header列表</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Headers headers = response.headers();</div><div class="line"><span class="comment">//1、header获取方法一</span></div><div class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; headers.size(); i++) &#123;</div><div class="line">    Logger.d(headers.name(i) + <span class="string">":"</span> + headers.value(i));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>通过Header的key获取value</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">String header = response.header(<span class="string">"Date"</span>);</div></pre></td></tr></table></figure>
+<ul>
+<li>获取响应对象的字符串</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">String responseData = response.body().string();</div></pre></td></tr></table></figure>
+<h3 id="处理Json数据"><a href="#处理Json数据" class="headerlink" title="处理Json数据"></a>处理Json数据</h3><ul>
+<li>方法一：JSONObject</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    JSONObject object = <span class="keyword">new</span> JSONObject(responseData);</div><div class="line">    String name = object.getString(<span class="string">"name"</span>);</div><div class="line">&#125; <span class="keyword">catch</span> (JSONException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>方法二：gson</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Gson gson = <span class="keyword">new</span> Gson();</div><div class="line">PersonBean personBean = gson.fromJson(response.body().charStream(), PersonBean.class);</div><div class="line">String name = personBean.getName();</div></pre></td></tr></table></figure>
+<p><strong>小贴士</strong>：使用<code>response.body().string()</code>的方式会把整个数据加载到内存中，为了更有效地使用内存，最好使用<code>response.body().charStream()</code>的方式将响应作为流处理。</p>
+<h3 id="发送认证请求"><a href="#发送认证请求" class="headerlink" title="发送认证请求"></a>发送认证请求</h3><p>OkHttp有一种使用拦截器来修改发出请求的机制。一个常见的使用场景是OAuth协议，它要求使用私钥对请求进行签名。OkHttp的signpost库与SignPost库一起使用拦截器来对每个请求进行签名。这样，调用者不需要记住每个请求的签名:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">OkHttpOAuthConsumer consumer = <span class="keyword">new</span> OkHttpOAuthConsumer(CONSUMER_KEY, CONSUMER_SECRET);</div><div class="line">String token = <span class="keyword">null</span>;</div><div class="line">String tokenSecret = <span class="keyword">null</span>;</div><div class="line">consumer.setTokenWithSecret(token, tokenSecret);</div><div class="line">client.interceptors().add(<span class="keyword">new</span> SigningInterceptor(consumer));</div></pre></td></tr></table></figure>
+<h3 id="缓存网络响应"><a href="#缓存网络响应" class="headerlink" title="缓存网络响应"></a>缓存网络响应</h3><ul>
+<li>在构建OkHttpClient时通过缓存来设置网络缓存:</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> cacheSize = <span class="number">10</span> * <span class="number">1024</span> * <span class="number">1024</span>;</div><div class="line">Cache cache = <span class="keyword">new</span> Cache(<span class="keyword">new</span> File(getApplication().getCacheDir(), <span class="string">"okhttpcache"</span>), cacheSize);</div><div class="line">OkHttpClient cacheClient = <span class="keyword">new</span> OkHttpClient.Builder().cache(cache).build();</div></pre></td></tr></table></figure>
+<ul>
+<li>设置cacheControl属性</li>
+</ul>
+<p>通过在构建Request对象时设置cacheControl属性来控制是否检索缓存的响应。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//1、只有在存在缓存的时候使用缓存</span></div><div class="line">Request request = <span class="keyword">new</span> Request.Builder()</div><div class="line">				.url(<span class="string">"http://api.dayongxin.com/imgs"</span>)</div><div class="line">                .cacheControl(<span class="keyword">new</span> CacheControl.Builder().onlyIfCached().build())</div><div class="line">				.build();</div><div class="line"><span class="comment">//2、不使用缓存</span></div><div class="line">Request request = <span class="keyword">new</span> Request.Builder()</div><div class="line">				.url(<span class="string">"http://api.dayongxin.com/imgs"</span>)</div><div class="line">                .cacheControl(<span class="keyword">new</span> CacheControl.Builder().noCache().build())</div><div class="line">				.build();</div></pre></td></tr></table></figure>
+<ul>
+<li>设置缓存生命周期</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//1、设置缓存响应的最大过期时间</span></div><div class="line">Request request = <span class="keyword">new</span> Request.Builder()</div><div class="line">	.url(<span class="string">"http://api.dayongxin.com/imgs"</span>)</div><div class="line">    .cacheControl(<span class="keyword">new</span> CacheControl.Builder().maxAge(<span class="number">1000</span>, TimeUnit.DAYS).build())</div><div class="line">    .build();</div><div class="line"><span class="comment">//2、接受已超过其新鲜生命周期的缓存响应，并使用maxStale值。如果没有指定，过时的缓存响应将不会被使用。</span></div><div class="line">Request request = <span class="keyword">new</span> Request.Builder()</div><div class="line">	.url(<span class="string">"http://api.dayongxin.com/imgs"</span>)</div><div class="line">    .cacheControl(<span class="keyword">new</span> CacheControl.Builder().maxStale(<span class="number">1000</span>, TimeUnit.DAYS).build())</div><div class="line">    .build();</div><div class="line"><span class="comment">//3、设置响应将继续保持新鲜的最小秒数。如果按minFresh值运行时，响应将会过期，缓存的响应将不会使用和网络请求。</span></div><div class="line">Request request = <span class="keyword">new</span> Request.Builder()</div><div class="line">	.url(<span class="string">"http://api.dayongxin.com/imgs"</span>)</div><div class="line">    .cacheControl(<span class="keyword">new</span> CacheControl.Builder().minFresh(<span class="number">1000</span>, TimeUnit.DAYS).build())</div><div class="line">    .build();</div></pre></td></tr></table></figure>
+<ul>
+<li>在Response对象上调用cacheResponse</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">cacheClient.newCall(request).enqueue(<span class="keyword">new</span> Callback() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Call call, IOException e)</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Call call, Response response)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        <span class="comment">//获取缓存响应</span></div><div class="line">        Response cacheResponse = response.cacheResponse();</div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<h2 id="OkHttp的Post请求"><a href="#OkHttp的Post请求" class="headerlink" title="OkHttp的Post请求"></a>OkHttp的Post请求</h2><h3 id="Post字符串"><a href="#Post字符串" class="headerlink" title="Post字符串"></a>Post字符串</h3><p>使用http的post方法将请求体发送到服务器。因为整个请求体同时在内存中，所以使用这种方式避免发布大的(大于1的MiB)文档。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> MediaType MEDIA_TYPE_JSON = MediaType.parse(<span class="string">"application/json; charset=utf-8"</span>);</div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String API_URL = <span class="string">"http://api.dayongxin.com/login"</span>;</div><div class="line">String postBody = <span class="string">"&#123;\n"</span> +</div><div class="line">        <span class="string">"    \"name\": \"dayongxin\",\n"</span> +</div><div class="line">        <span class="string">"    \"age\": 18\n"</span> +</div><div class="line">        <span class="string">"&#125;"</span>;</div><div class="line">Request request = <span class="keyword">new</span> Request.Builder().url(API_URL).post(RequestBody.create(MEDIA_TYPE_JSON, postBody)).build();</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    Response response = client.newCall(request).execute();</div><div class="line">    <span class="keyword">if</span> (!response.isSuccessful()) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Unexpected code:"</span> + response);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        String result = response.body().string();</div><div class="line">    &#125;</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="Post数据流"><a href="#Post数据流" class="headerlink" title="Post数据流"></a>Post数据流</h3><p>将一个请求体作为流发送出去，这个请求体的内容在它写入的时候生成。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> MediaType MEDIA_TYPE_JSON = MediaType.parse(<span class="string">"application/json; charset=utf-8"</span>);</div><div class="line"><span class="keyword">private</span> OkHttpClient client = <span class="keyword">new</span> OkHttpClient();</div><div class="line"></div><div class="line"><span class="keyword">final</span> String postBody = <span class="string">"&#123;\n"</span> +</div><div class="line">        <span class="string">"    \"name\": \"dayongxin\",\n"</span> +</div><div class="line">        <span class="string">"    \"age\": 18\n"</span> +</div><div class="line">        <span class="string">"&#125;"</span>;</div><div class="line">RequestBody requestBody = <span class="keyword">new</span> RequestBody() &#123;</div><div class="line">    <span class="meta">@javax</span>.annotation.Nullable</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> MediaType <span class="title">contentType</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> MEDIA_TYPE_JSON;</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writeTo</span><span class="params">(BufferedSink sink)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        sink.writeUtf8(postBody);</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line">Request request = <span class="keyword">new</span> Request.Builder().url(API_URL).post(requestBody).build();</div><div class="line">client.newCall(request).enqueue(<span class="keyword">new</span> Callback() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Call call, IOException e)</span> </span>&#123;</div><div class="line">        e.printStackTrace();</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Call call, Response response)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        <span class="keyword">if</span> (!response.isSuccessful()) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Unexpected code:"</span> + response);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            String result = response.body().string();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<h3 id="Post文件"><a href="#Post文件" class="headerlink" title="Post文件"></a>Post文件</h3><p>将文件作为请求体。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> MediaType MEDIA_TYPE_MARK_DOWN = MediaType.parse(<span class="string">"text/x-markdown; charset=utf-8"</span>);</div><div class="line"><span class="keyword">private</span> OkHttpClient client = <span class="keyword">new</span> OkHttpClient();</div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String API_URL = <span class="string">"http://api.dayongxin.com/login"</span>;</div><div class="line"></div><div class="line">File file = <span class="keyword">new</span> File(<span class="string">"README.md"</span>);</div><div class="line">Request request = <span class="keyword">new</span> Request.Builder().url(API_URL).post(RequestBody.create(MEDIA_TYPE_MARK_DOWN, file)).build();</div><div class="line">client.newCall(request).enqueue(<span class="keyword">new</span> Callback() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Call call, IOException e)</span> </span>&#123;</div><div class="line">        e.printStackTrace();</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Call call, Response response)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        <span class="keyword">if</span> (!response.isSuccessful()) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Unexpected code:"</span> + response);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            String result = response.body().string();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<h3 id="Post-Form参数"><a href="#Post-Form参数" class="headerlink" title="Post Form参数"></a>Post Form参数</h3><p>使用<code>FormBody.Builder</code>构建一个如同html中的<form>标签一样的请求体。名称和值将使用与html兼容的表单URL编码进行编码。</form></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">RequestBody formBody = <span class="keyword">new</span> FormBody.Builder().add(<span class="string">"keywords"</span>, <span class="string">"android"</span>).build();</div><div class="line">Request request = <span class="keyword">new</span> Request.Builder().url(API_URL).post(formBody).build();</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    Response response = client.newCall(request).execute();</div><div class="line">    <span class="keyword">if</span> (!response.isSuccessful()) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Unexpected code:"</span> + response);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        String result = response.body().string();</div><div class="line">    &#125;</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="Post-multipart请求"><a href="#Post-multipart请求" class="headerlink" title="Post multipart请求"></a>Post multipart请求</h3><p><code>MultipartBody.Builder</code>可以构建与HTML文件上传表单兼容的复杂请求体。多部件请求主体的每个部分本身都是一个请求体，并且可以定义它自己的头。如果存在，这些头文件应该描述部分主体，比如它的<code>Content-Disposition</code>。如果可用，<code>Content-Length</code>和<code>Content-Type</code>的标题将自动添加。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">RequestBody multipartBody = <span class="keyword">new</span> MultipartBody.Builder()</div><div class="line">        .setType(MultipartBody.FORM)</div><div class="line">        .addFormDataPart(<span class="string">"title"</span>, <span class="string">"dayongxin"</span>)</div><div class="line">        .addFormDataPart(<span class="string">"image"</span>, <span class="string">"ic_header.png"</span>, RequestBody.create(MEDIA_TYPE_MARK_PNG, <span class="keyword">new</span> File(<span class="string">"/xxx/xxx/img.png"</span>)))</div><div class="line">        .build();</div><div class="line">Request request = <span class="keyword">new</span> Request.Builder()</div><div class="line">        .header(<span class="string">"Authorization"</span>, <span class="string">"Bearer "</span> + API_TOKEN).url(API_URL)</div><div class="line">        .post(multipartBody)</div><div class="line">        .build();</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    Response response = client.newCall(request).execute();</div><div class="line">    <span class="keyword">if</span> (!response.isSuccessful()) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Unexpected code:"</span> + response);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        String result = response.body().string();</div><div class="line">    &#125;</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="使用moshi解析json"><a href="#使用moshi解析json" class="headerlink" title="使用moshi解析json"></a>使用moshi解析json</h2><p>使用Moshi解析json。注意：在解码响应体时<code>ResponseBody.charStream()</code>使用<code>Content-Type</code>响应头来选择使用哪种编码格式。默认使用UTF-8编码格式。</p>
+<ul>
+<li>初始化Moshi</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> Moshi moshi = <span class="keyword">new</span> Moshi.Builder().build();</div><div class="line"><span class="keyword">private</span> JsonAdapter&lt;Content&gt; contentJsonAdaptert = moshi.adapter(Content.class);</div></pre></td></tr></table></figure>
+<ul>
+<li>进行网络请求</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">Request request = <span class="keyword">new</span> Request.Builder()</div><div class="line">        .url(API_URL)</div><div class="line">        .build();</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    Response response = client.newCall(request).execute();</div><div class="line">    <span class="keyword">if</span> (!response.isSuccessful()) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Unexpected code:"</span> + response);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        Content content = contentJsonAdaptert.fromJson(response.body().source());</div><div class="line">        <span class="keyword">for</span> (Map.Entry&lt;String, ContentFile&gt; entry : content.files.entrySet()) &#123;</div><div class="line">            Logger.d(entry.getKey() + <span class="string">":"</span> + entry.getValue().content);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="缓存响应结果"><a href="#缓存响应结果" class="headerlink" title="缓存响应结果"></a>缓存响应结果</h2><p>为了缓存响应，需要一个可以读写的缓存目录，以及缓存大小的限制。缓存目录应该是私有的，不受信任的应用程序不能读取它的内容！</p>
+<p>让多个缓存同时访问相同的缓存目录是不可行的。大多数应用程序都应该立即调用<code>new OkHttpClient()</code>，并为其配置缓存，并在任何地方使用相同的实例。否则，两个缓存实例将会相互影响，破坏响应缓存，并可能导致程序崩溃。</p>
+<p>响应缓存使用http头来进行所有配置。可以添加类似<code>Cache-Control: max-stale=3600</code>的请求头，OkHttp的缓存将遵循这个设置。web服务器配置了响应缓存的过期时间，比如<code>Cache-Control: max-age=9600</code>。缓存头强制缓存响应，强制网络响应，或强制使用条件GET对网络响应进行验证。</p>
+<p>为了防止使用缓存的响应，可以使用<code>CacheControl.FORCE_NETWORK</code>进行配置。要防止它使用网络，可以使用<code>CacheControl.FORCE_CACHE</code>进行配置。<strong>注意</strong>:如果设置了<code>CacheControl.FORCE_CACHE</code>，而响应需要网络，OkHttp将返回504错误。</p>
+<ul>
+<li>设置缓存响应</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">cacheResponse</span><span class="params">(File cacheFile)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> cacheSize = <span class="number">10</span> * <span class="number">1024</span> * <span class="number">1024</span>;</div><div class="line">    Cache cache = <span class="keyword">new</span> Cache(cacheFile, cacheSize);</div><div class="line">    cacheClient = <span class="keyword">new</span> OkHttpClient.Builder().cache(cache).build();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>进行网络请求</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">Request request = <span class="keyword">new</span> Request.Builder().url(API_URL).build();</div><div class="line">String responseBody1 = <span class="string">""</span>;</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    Response response1 = cacheClient.newCall(request).execute();</div><div class="line">    <span class="keyword">if</span> (!response1.isSuccessful()) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Unexpected code:"</span> + response1);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        responseBody1 = response1.body().string();</div><div class="line">        <span class="comment">//1、response</span></div><div class="line">        Logger.d(<span class="string">"Response 1 response"</span> + response1);</div><div class="line">        <span class="comment">//2、cacheResponse</span></div><div class="line">        Logger.d(<span class="string">"Response 1 response"</span> + response1.cacheResponse());</div><div class="line">        <span class="comment">//3、networkResponse</span></div><div class="line">        Logger.d(<span class="string">"Response 1 response"</span> + response1.networkResponse());</div><div class="line">    &#125;</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div><div class="line">String responseBody2 = <span class="string">""</span>;</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    Response response2 = cacheClient.newCall(request).execute();</div><div class="line">    <span class="keyword">if</span> (!response2.isSuccessful()) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Unexpected code:"</span> + response2);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        responseBody2 = response2.body().string();</div><div class="line">        <span class="comment">//1、response</span></div><div class="line">        Logger.d(<span class="string">"Response 2 response"</span> + response2);</div><div class="line">        <span class="comment">//2、cacheRespons</span></div><div class="line">        Logger.d(<span class="string">"Response 2 response"</span> + response2.cacheResponse());</div><div class="line">        <span class="comment">//3、networkRespons</span></div><div class="line">        Logger.d(<span class="string">"Response 2 response"</span> + response2.networkResponse());</div><div class="line">    &#125;</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div><div class="line"><span class="comment">//判断responseBody1与responseBody2是否相等</span></div><div class="line">Logger.d(responseBody1.equals(responseBody2));</div></pre></td></tr></table></figure>
+<h2 id="取消访问"><a href="#取消访问" class="headerlink" title="取消访问"></a>取消访问</h2><p>使用<code>Call.cancel()</code>来立即停止正在进行的调用。如果一个线程正在编写请求或读取响应，它将收到一个IOException。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">Request request = <span class="keyword">new</span> Request.Builder().url(API_URL).build();</div><div class="line"><span class="keyword">final</span> <span class="keyword">long</span> nano_time = System.nanoTime();</div><div class="line"><span class="keyword">final</span> Call call = client.newCall(request);</div><div class="line">executorService.schedule(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">//开始时间</span></div><div class="line">        Logger.d(String.valueOf(((System.nanoTime() - nano_time) / <span class="number">1e9f</span>)));</div><div class="line">        <span class="comment">//取消</span></div><div class="line">        call.cancel();</div><div class="line">        <span class="comment">//结束时间</span></div><div class="line">        Logger.d(String.valueOf(((System.nanoTime() - nano_time) / <span class="number">1e9f</span>)));</div><div class="line">    &#125;</div><div class="line">&#125;, <span class="number">1</span>, TimeUnit.SECONDS);</div><div class="line"><span class="comment">//执行Call</span></div><div class="line">Logger.d(String.valueOf(((System.nanoTime() - nano_time) / <span class="number">1e9f</span>)));</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    Response response = call.execute();</div><div class="line">    <span class="keyword">if</span> (!response.isSuccessful()) &#123;</div><div class="line">        <span class="comment">//失败</span></div><div class="line">        Logger.d(String.valueOf(((System.nanoTime() - nano_time) / <span class="number">1e9f</span>)) + response.body().string());</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="comment">//成功</span></div><div class="line">        Logger.d(String.valueOf(((System.nanoTime() - nano_time) / <span class="number">1e9f</span>)) + response.body().string());</div><div class="line">    &#125;</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="超时"><a href="#超时" class="headerlink" title="超时"></a>超时</h2><p>当网络访问不可达时，访问失败以超时标志。造成超时的原因可能是客户端连接问题、服务器可用性问题或其他原因造成的。OkHttp支持连接、读取和写入超时。</p>
+<ul>
+<li>配置超时</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">configTimeOuts</span><span class="params">()</span> </span>&#123;</div><div class="line">    timeOutClient = <span class="keyword">new</span> OkHttpClient.Builder()</div><div class="line">            .connectTimeout(<span class="number">10</span>, TimeUnit.SECONDS)</div><div class="line">            .writeTimeout(<span class="number">10</span>, TimeUnit.SECONDS)</div><div class="line">            .readTimeout(<span class="number">30</span>, TimeUnit.SECONDS)</div><div class="line">            .build();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>进行网络请求</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">Request request = <span class="keyword">new</span> Request.Builder().url(API_URL).build();</div><div class="line"><span class="keyword">final</span> <span class="keyword">long</span> nano_time = System.nanoTime();</div><div class="line"><span class="keyword">final</span> Call call = client.newCall(request);</div><div class="line">executorService.schedule(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">//开始时间</span></div><div class="line">        Logger.d(String.valueOf(((System.nanoTime() - nano_time) / <span class="number">1e9f</span>)));</div><div class="line">        <span class="comment">//取消</span></div><div class="line">        call.cancel();</div><div class="line">        <span class="comment">//结束时间</span></div><div class="line">        Logger.d(String.valueOf(((System.nanoTime() - nano_time) / <span class="number">1e9f</span>)));</div><div class="line">    &#125;</div><div class="line">&#125;, <span class="number">1</span>, TimeUnit.SECONDS);</div><div class="line"><span class="comment">//执行Call</span></div><div class="line">Logger.d(String.valueOf(((System.nanoTime() - nano_time) / <span class="number">1e9f</span>)));</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    Response response = call.execute();</div><div class="line">    <span class="keyword">if</span> (!response.isSuccessful()) &#123;</div><div class="line">        <span class="comment">//失败</span></div><div class="line">        Logger.d(String.valueOf(((System.nanoTime() - nano_time) / <span class="number">1e9f</span>)) + response.body().string());</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="comment">//成功</span></div><div class="line">        Logger.d(String.valueOf(((System.nanoTime() - nano_time) / <span class="number">1e9f</span>)) + response.body().string());</div><div class="line">    &#125;</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="配置每个call"><a href="#配置每个call" class="headerlink" title="配置每个call"></a>配置每个call</h2><p>所有的http client实时在OkHttpClient中进行配置，包括代理设置、超时和缓存。当需要更改单个调用的配置时，调用<code>OkHttpClient.newBuilder()</code>即可。这将返回一个构建器，该构建器与初始客户端共享相同的连接池、分派器和配置。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">Request request = <span class="keyword">new</span> Request.Builder().url(API_URL).build();</div><div class="line">OkHttpClient client1 = client.newBuilder().readTimeout(<span class="number">1000</span>, TimeUnit.SECONDS).build();</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    Response response = client1.newCall(request).execute();</div><div class="line">    <span class="keyword">if</span> (!response.isSuccessful()) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Unexpected code:"</span> + response);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        Logger.d(response.body().string());</div><div class="line">    &#125;</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div><div class="line">OkHttpClient client2 = client.newBuilder().readTimeout(<span class="number">3000</span>, TimeUnit.SECONDS).build();</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    Response response = client2.newCall(request).execute();</div><div class="line">    <span class="keyword">if</span> (!response.isSuccessful()) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Unexpected code:"</span> + response);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        Logger.d(response.body().string());</div><div class="line">    &#125;</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="处理Authentication"><a href="#处理Authentication" class="headerlink" title="处理Authentication"></a>处理Authentication</h2><p>OkHttp可以自动重试未经身份验证的请求。当响应为401未被授权时，需要一个身份验证器来提供Credentials。实现应该构建一个新的请求，其中包括缺少的Credentials。如果没有可用的Credentials，则返回null以跳过重试。</p>
+<p>使用<code>Response.challenges()</code>来获得任何身份验证挑战的方案和领域。当完成一个基本的挑战时，使用<code>Credentials.basic(username, password)</code>对请求头进行编码。</p>
+<ul>
+<li>配置Authenticator</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">Authorize</span><span class="params">()</span> </span>&#123;</div><div class="line">    authClient = <span class="keyword">new</span> OkHttpClient.Builder().authenticator(<span class="keyword">new</span> Authenticator() &#123;</div><div class="line">        <span class="meta">@javax</span>.annotation.Nullable</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> Request <span class="title">authenticate</span><span class="params">(Route route, Response response)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">            String credentials = Credentials.basic(<span class="string">"dayongxin"</span>, <span class="string">"123456"</span>);</div><div class="line">            <span class="comment">//1、通过判断请求头Authorization</span></div><div class="line">            <span class="keyword">if</span> (response.request().header(<span class="string">"Authorization"</span>) != <span class="keyword">null</span>) &#123;</div><div class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">            &#125;</div><div class="line">            <span class="comment">//2、通过判断请求头Authorization与Credentials</span></div><div class="line">            <span class="keyword">if</span> (credentials.equals(response.request().header(<span class="string">"Authorization"</span>))) &#123;</div><div class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">            &#125;</div><div class="line">          	<span class="comment">//3、设置重试次数</span></div><div class="line">            <span class="keyword">if</span> (resCount(response) &gt;= <span class="number">3</span>) &#123;</div><div class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">            &#125;</div><div class="line">            <span class="comment">//Authorize response</span></div><div class="line">            Logger.d(response);</div><div class="line">            <span class="comment">//challenges</span></div><div class="line">            Logger.d(response.challenges());</div><div class="line">            <span class="keyword">return</span> response.request().newBuilder().header(<span class="string">"Authorization"</span>, credentials).build();</div><div class="line">        &#125;</div><div class="line">    &#125;).build();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>进行正常的网络请求</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">Request request = <span class="keyword">new</span> Request.Builder().url(API_URL).build();</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    Response response = client.newCall(request).execute();</div><div class="line">    <span class="keyword">if</span> (!response.isSuccessful()) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Unexpected code "</span> + response);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        Logger.d(response.body().string());</div><div class="line">    &#125;</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>为了避免在身份验证无效时进行多次重试，可以返回null以示放弃</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (credentials.equals(response.request().header(<span class="string">"Authorization"</span>))) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>设置请求次数限制</li>
+</ul>
+<p>计算请求重试次数：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">resCount</span><span class="params">(Response response)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> result = <span class="number">1</span>;</div><div class="line">    <span class="keyword">while</span> ((response = response.priorResponse()) != <span class="keyword">null</span>) &#123;</div><div class="line">        result++;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> result;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>设置重试次数为3:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (resCount(response) &gt;= <span class="number">3</span>) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="调试OkHttp网络请求"><a href="#调试OkHttp网络请求" class="headerlink" title="调试OkHttp网络请求"></a>调试OkHttp网络请求</h2><p>当尝试在库中跨不同的抽象层时，OkHttp可能很难进行网络调试。可以在使用OkHttp时添加HttpLogInterceptor，通过Log打印出网络请求和响应信息。也可以通过Facebook的Stetho使用Chrome浏览器进行网络访问调试。</p>
+<ul>
+<li>为HttpLogInterceptor添加网络拦截器</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">OkHttpClient.Builder builder = <span class="keyword">new</span> OkHttpClient.Builder();</div><div class="line">HttpLoggingInterceptor httpLoggingInterceptor = <span class="keyword">new</span> HttpLoggingInterceptor();</div><div class="line">httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);</div><div class="line">builder.networkInterceptors().add(httpLoggingInterceptor);</div><div class="line">builder.build();</div></pre></td></tr></table></figure>
+<ul>
+<li>使用Stetho监控网络访问</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">OkHttpClient stethoClient = <span class="keyword">new</span> OkHttpClient.Builder().addNetworkInterceptor(<span class="keyword">new</span> StethoInterceptor()).build();</div><div class="line">Request request = <span class="keyword">new</span> Request.Builder().url(<span class="string">""</span>).build();</div><div class="line">stethoClient.newCall(request).enqueue(<span class="keyword">new</span> Callback() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Call call, IOException e)</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Call call, Response response)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>使用Stetho需要在Application的onCreate()中进行初始化操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Stetho.initializeWithDefaults(<span class="keyword">this</span>);</div></pre></td></tr></table></figure>
+<h2 id="使用Websocket"><a href="#使用Websocket" class="headerlink" title="使用Websocket"></a>使用Websocket</h2><p>从OkHttp 3.5开始对双向web套接字的支持。URL的前缀需要使用<code>ws://</code>或<code>wss://</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">Request request = <span class="keyword">new</span> Request.Builder().url(<span class="string">"ws://192.168.2.32"</span>).build();</div><div class="line">WebSocket webSocket = client.newWebSocket(request, <span class="keyword">new</span> WebSocketListener() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onOpen</span><span class="params">(WebSocket webSocket, Response response)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onOpen(webSocket, response);</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(WebSocket webSocket, String text)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onMessage(webSocket, text);</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(WebSocket webSocket, ByteString bytes)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onMessage(webSocket, bytes);</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClosing</span><span class="params">(WebSocket webSocket, <span class="keyword">int</span> code, String reason)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onClosing(webSocket, code, reason);</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClosed</span><span class="params">(WebSocket webSocket, <span class="keyword">int</span> code, String reason)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onClosed(webSocket, code, reason);</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(WebSocket webSocket, Throwable t, @javax.annotation.Nullable Response response)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onFailure(webSocket, t, response);</div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>使用WebSocket发送消息：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">webSocket.send(<span class="string">"Hello WebSocket!"</span>);</div></pre></td></tr></table></figure>
+<p>正确地关闭连接：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">webSocket.close(<span class="number">1000</span>, <span class="string">"WebSocket Closing!"</span>);</div></pre></td></tr></table></figure>
+<p>小贴士：OkHttp中使用WebSocket时，开启了子线程进行WebSocket相关操作。</p>
+<h2 id="4-0设备上允许使用TLS-v1-2"><a href="#4-0设备上允许使用TLS-v1-2" class="headerlink" title="4.0设备上允许使用TLS v1.2"></a>4.0设备上允许使用TLS v1.2</h2><p>如果遇到SSL握手终止错误而且使用Android 4.0设备，需要显式地启用TLS v1.2。自从API 16(Android 4.1)以来，Android已经支持了TLS v1.2。还应该确保通过ProviderInstaller使用的是最新的OpenSSL。在Application的onCreate()中添加如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    ProviderInstaller.installIfNeeded(getApplicationContext());</div><div class="line">    SSLContext sslContext;</div><div class="line">    sslContext = SSLContext.getInstance(<span class="string">"TLSv1.2"</span>);</div><div class="line">    sslContext.init(<span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>);</div><div class="line">    sslContext.createSSLEngine();</div><div class="line">&#125; <span class="keyword">catch</span> (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException</div><div class="line">        | NoSuchAlgorithmException | KeyManagementException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.dayongxin.com/2017/10/17/android-okhttp-up/" data-id="cj8zjmlqh000whfra9qw4fkh8" class="article-share-link">分享</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OkHttp用法/">OkHttp用法</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+ <script src="/jquery/jquery.min.js"></script>
+  <div id="random_posts">
+    <h2>推荐文章</h2>
+    <div class="random_posts_ul">
+      <script>
+          var random_count =4
+          var site = {BASE_URI:'/'};
+          function load_random_posts(obj) {
+              var arr=site.posts;
+              if (!obj) return;
+              // var count = $(obj).attr('data-count') || 6;
+              for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp);
+              arr = arr.slice(0, random_count);
+              var html = '<ul>';
+            
+              for(var j=0;j<arr.length;j++){
+                var item=arr[j];
+                html += '<li><strong>' + 
+                item.date + ':&nbsp;&nbsp;<a href="' + (site.BASE_URI+item.uri) + '">' + 
+                (item.title || item.uri) + '</a></strong>';
+                if(item.excerpt){
+                  html +='<div class="post-excerpt">'+item.excerpt+'</div>';
+                }
+                html +='</li>';
+                
+              }
+              $(obj).html(html + '</ul>');
+          }
+          $('.random_posts_ul').each(function () {
+              var c = this;
+              if (!site.posts || !site.posts.length){
+                  $.getJSON(site.BASE_URI + 'js/posts.js',function(json){site.posts = json;load_random_posts(c)});
+              } 
+               else{
+                load_random_posts(c);
+              }
+          });
+      </script>
+    </div>
+  </div>
+
+    
+<nav id="article-nav">
+  
+    <a href="/2017/10/17/android-okhttp-down/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">
+        
+          Android okhttp完全解析(下)：okhttp源码解析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/10/16/android-architecture-evolution/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">Android架构演进</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+ 
+     
+  <div class="comments" id="comments">
+    
+     
+       
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+       
+      
+      
+  </div>
+ 
+  
+
+</section>
+           
+    <aside id="sidebar">
+  
+    
+    <div class="widget-wrap">
+    
+      <div class="widget" id="toc-widget-fixed">
+      
+        <strong class="toc-title">文章目录</strong>
+        <div class="toc-widget-list">
+              <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#添加依赖库"><span class="toc-number">1.</span> <span class="toc-text">添加依赖库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OkHttp的get请求"><span class="toc-number">2.</span> <span class="toc-text">OkHttp的get请求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#发送和接受网络请求"><span class="toc-number">2.1.</span> <span class="toc-text">发送和接受网络请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#同步的方式进行网络访问"><span class="toc-number">2.2.</span> <span class="toc-text">同步的方式进行网络访问</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#异步的方式进行网络访问"><span class="toc-number">2.3.</span> <span class="toc-text">异步的方式进行网络访问</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#处理网络响应"><span class="toc-number">2.4.</span> <span class="toc-text">处理网络响应</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#处理Json数据"><span class="toc-number">2.5.</span> <span class="toc-text">处理Json数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#发送认证请求"><span class="toc-number">2.6.</span> <span class="toc-text">发送认证请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#缓存网络响应"><span class="toc-number">2.7.</span> <span class="toc-text">缓存网络响应</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OkHttp的Post请求"><span class="toc-number">3.</span> <span class="toc-text">OkHttp的Post请求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Post字符串"><span class="toc-number">3.1.</span> <span class="toc-text">Post字符串</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Post数据流"><span class="toc-number">3.2.</span> <span class="toc-text">Post数据流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Post文件"><span class="toc-number">3.3.</span> <span class="toc-text">Post文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Post-Form参数"><span class="toc-number">3.4.</span> <span class="toc-text">Post Form参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Post-multipart请求"><span class="toc-number">3.5.</span> <span class="toc-text">Post multipart请求</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用moshi解析json"><span class="toc-number">4.</span> <span class="toc-text">使用moshi解析json</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#缓存响应结果"><span class="toc-number">5.</span> <span class="toc-text">缓存响应结果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#取消访问"><span class="toc-number">6.</span> <span class="toc-text">取消访问</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#超时"><span class="toc-number">7.</span> <span class="toc-text">超时</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置每个call"><span class="toc-number">8.</span> <span class="toc-text">配置每个call</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#处理Authentication"><span class="toc-number">9.</span> <span class="toc-text">处理Authentication</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#调试OkHttp网络请求"><span class="toc-number">10.</span> <span class="toc-text">调试OkHttp网络请求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用Websocket"><span class="toc-number">11.</span> <span class="toc-text">使用Websocket</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-0设备上允许使用TLS-v1-2"><span class="toc-number">12.</span> <span class="toc-text">4.0设备上允许使用TLS v1.2</span></a></li></ol>
+          </div>
+      </div>
+    </div>
+
+  
+    
+
+  
+    
+  
+    
+  
+    
+
+  
+    
+  
+</aside>
+
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-left">
+      &copy; 2014 - 2017 dayongxin&nbsp;|&nbsp;
+      主题 <a href="https://github.com/giscafer/hexo-theme-cafe/" target="_blank">Cafe</a>
+    </div>
+     <div id="footer-right">
+      联系方式&nbsp;|&nbsp;youemail@outlook.com
+    </div>
+  </div>
+</footer>
+ <script src="/jquery/jquery.min.js"></script>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">首页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/product" class="mobile-nav-link">作品</a>
+  
+    <a href="/resume" class="mobile-nav-link">简历</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    <img class="back-to-top-btn" src="/images/fly-to-top.png"/>
+<script>
+// Elevator script included on the page, already.
+window.onload = function() {
+  var elevator = new Elevator({
+    selector:'.back-to-top-btn',
+    element: document.querySelector('.back-to-top-btn'),
+    duration: 1000 // milliseconds
+  });
+}
+</script>
+      
+
+  
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "e2fb4051c49842688ce669e634bc983f",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+    
+
+  
+
+
+
+
+
+
+
+<!-- author:forvoid begin -->
+<!-- author:forvoid begin -->
+
+<!-- author:forvoid end -->
+
+<!-- author:forvoid end -->
+
+
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      })
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      })
+    </script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+ <script src="/js/is.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+<script src="/js/elevator.js"></script>
+  </div>
+</body>
+</html>

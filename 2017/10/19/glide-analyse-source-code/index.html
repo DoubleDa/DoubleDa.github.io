@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android Glide完全解析(下)：Glide源码解析 | 哒哒</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Glide源码解析">
+<meta name="keywords" content="Glide源码解析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Glide完全解析(下)：Glide源码解析">
+<meta property="og:url" content="http://www.dayongxin.com/2017/10/19/glide-analyse-source-code/index.html">
+<meta property="og:site_name" content="哒哒">
+<meta property="og:description" content="Glide源码解析">
+<meta property="og:image" content="http://oqle0m5m6.bkt.clouddn.com/Glide%E6%80%BB%E4%BD%93%E8%AE%BE%E8%AE%A1.png">
+<meta property="og:updated_time" content="2017-10-20T11:27:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android Glide完全解析(下)：Glide源码解析">
+<meta name="twitter:description" content="Glide源码解析">
+<meta name="twitter:image" content="http://oqle0m5m6.bkt.clouddn.com/Glide%E6%80%BB%E4%BD%93%E8%AE%BE%E8%AE%A1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="哒哒" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    
+    <div id="header-inner" class="inner">
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://www.dayongxin.com"></form>
+      </div>
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">首页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/product">作品</a>
+        
+          <a class="main-nav-link" href="/resume">简历</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
+        
+      </nav>
+      
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">哒哒</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Keep engineers playfully</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-glide-analyse-source-code" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/10/19/glide-analyse-source-code/" class="article-date">
+  <time datetime="2017-10-19T11:39:41.000Z" itemprop="datePublished">2017-10-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Android Glide完全解析(下)：Glide源码解析
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <p>Glide源码解析<br><a id="more"></a></p>
+<h2 id="Glide总体设计"><a href="#Glide总体设计" class="headerlink" title="Glide总体设计"></a>Glide总体设计</h2><p><img src="http://oqle0m5m6.bkt.clouddn.com/Glide%E6%80%BB%E4%BD%93%E8%AE%BE%E8%AE%A1.png" alt=""></p>
+<h2 id="with"><a href="#with" class="headerlink" title="with()"></a>with()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">with(Context context)</div><div class="line">with(Activity activity)</div><div class="line">with(FragmentActivity activity)</div><div class="line">with(android.app.Fragment fragment)</div><div class="line">with(Fragment fragment)</div></pre></td></tr></table></figure>
+<p>注意：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Any requests started using a context will only have the application level options applied and will not be started or stopped based on lifecycle events. In general, loads should be started at the level the result will be used in. If the resource will be used in a view in a child fragment,the load should be started with &#123;@link#with(android.app.Fragment)&#125;&#125; using that child fragment. Similarly,if the resource will be used in a view in the parent fragment, the load should be started with &#123;@link #with(android.app.Fragment)&#125; using the parent fragment. In the same vein, if the resource will be used in a view in an activity, the load should be started with &#123;@link #with(android.app.Activity)&#125;&#125;.</div></pre></td></tr></table></figure>
+<p>Glide调用<code>with()</code>创建RequestManager对象，具体实现是通过调用RequestManagerRetriever对象的<code>get()</code>得到。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> RequestManager <span class="title">with</span><span class="params">(FragmentActivity activity)</span> </span>&#123;</div><div class="line">    RequestManagerRetriever retriever = RequestManagerRetriever.get();</div><div class="line">    <span class="keyword">return</span> retriever.get(activity);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>RequestManagerRetriever是一个为创建新的RequestManager或者从Activity和Fragment中检索已经存在的RequestManager提供静态方法的集合，在<code>RequestManagerRetriever.java</code>中具体实现如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> RequestManager <span class="title">get</span><span class="params">(FragmentActivity activity)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (Util.isOnBackgroundThread()) &#123;</div><div class="line">    	<span class="comment">/*</span></div><div class="line"><span class="comment">         * 子线程</span></div><div class="line"><span class="comment">         */</span></div><div class="line">        <span class="keyword">return</span> get(activity.getApplicationContext());</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">    	<span class="comment">/*</span></div><div class="line"><span class="comment">         * UI线程</span></div><div class="line"><span class="comment">         */</span></div><div class="line">        <span class="comment">//断言传入的上下文没被销毁(SDK&gt;=17)</span></div><div class="line">        assertNotDestroyed(activity);</div><div class="line">        FragmentManager fm = activity.getSupportFragmentManager();</div><div class="line">        <span class="keyword">return</span> supportFragmentGet(activity, fm);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在此还没有得到RequestManager，而真正得到RequestManager对象是通过<code>supportFragmentGet()</code>。首先，将传入的FragmentManager作为参数传入<code>getSupportRequestManagerFragment()</code>，获取SupportRequestManagerFragment对象；然后，SupportRequestManagerFragment对象调用<code>getRequestManager()</code>，获取RequestManager对象，并将其返回，如果RequestManager对象为空，创建RequestManager之后返回：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function">RequestManager <span class="title">supportFragmentGet</span><span class="params">(Context context, FragmentManager fm)</span> </span>&#123;</div><div class="line">    SupportRequestManagerFragment current = getSupportRequestManagerFragment(fm);</div><div class="line">    RequestManager requestManager = current.getRequestManager();</div><div class="line">    <span class="keyword">if</span> (requestManager == <span class="keyword">null</span>) &#123;</div><div class="line">        requestManager = <span class="keyword">new</span> RequestManager(context, current.getLifecycle(), current.getRequestManagerTreeNode());</div><div class="line">        current.setRequestManager(requestManager);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> requestManager;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="load"><a href="#load" class="headerlink" title="load()"></a>load()</h2><p>Glide调用<code>with()</code>之后创建了RequestManager对象，接下来调用<code>load()</code>：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> DrawableTypeRequest&lt;String&gt; <span class="title">load</span><span class="params">(String string)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> (DrawableTypeRequest&lt;String&gt;) fromString().load(string);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在此并没有进行<code>DrawableTypeRequest&lt;String&gt;</code>的真正创建，而是将其下发到：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> DrawableTypeRequest&lt;String&gt; <span class="title">fromString</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> loadGeneric(String.class);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>再次下发到<code>loadGeneric()</code>：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> &lt;T&gt; <span class="function">DrawableTypeRequest&lt;T&gt; <span class="title">loadGeneric</span><span class="params">(Class&lt;T&gt; modelClass)</span> </span>&#123;</div><div class="line">    ModelLoader&lt;T, InputStream&gt; streamModelLoader = Glide.buildStreamModelLoader(modelClass, context);</div><div class="line">    ModelLoader&lt;T, ParcelFileDescriptor&gt; fileDescriptorModelLoader =</div><div class="line">            Glide.buildFileDescriptorModelLoader(modelClass, context);</div><div class="line">    <span class="keyword">if</span> (modelClass != <span class="keyword">null</span> &amp;&amp; streamModelLoader == <span class="keyword">null</span> &amp;&amp; fileDescriptorModelLoader == <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Unknown type "</span> + modelClass + <span class="string">". You must provide a Model of a type for"</span></div><div class="line">                + <span class="string">" which there is a registered ModelLoader, if you are using a custom model, you must first call"</span></div><div class="line">                + <span class="string">" Glide#register with a ModelLoaderFactory for your custom model class"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> optionsApplier.apply(</div><div class="line">            <span class="keyword">new</span> DrawableTypeRequest&lt;T&gt;(modelClass, streamModelLoader, fileDescriptorModelLoader, context,</div><div class="line">                    glide, requestTracker, lifecycle, optionsApplier));</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>接着调用DrawableTypeRequest<string>的<code>into()</code>创建DrawableRequestBuilder<modeltype>：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> DrawableRequestBuilder&lt;ModelType&gt; <span class="title">load</span><span class="params">(ModelType model)</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.load(model);</div><div class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></modeltype></string></p>
+<p>而<code>load()</code>的实现落实到了<code>GenericRequestBuilder.java</code>的<code>load()</code>，此时GenericRequestBuilder对象创建成功：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> GenericRequestBuilder&lt;ModelType, DataType, ResourceType, TranscodeType&gt; <span class="title">load</span><span class="params">(ModelType model)</span> </span>&#123;</div><div class="line">    <span class="keyword">this</span>.model = model;</div><div class="line">    isModelSet = <span class="keyword">true</span>;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="asBitmap"><a href="#asBitmap" class="headerlink" title="asBitmap()"></a>asBitmap()</h2><p>上文中Glide调用<code>load()</code>生成了GenericRequestBuilder对象。<code>asBitmap()</code>是DrawableTypeRequest类提供的创建BitmapTypeRequest对象的方法，而DrawableTypeRequest继承自DrawableRequestBuilder，而BitmapRequestBuilder又继承自GenericRequestBuilder。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> BitmapTypeRequest&lt;ModelType&gt; <span class="title">asBitmap</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> optionsApplier.apply(<span class="keyword">new</span> BitmapTypeRequest&lt;ModelType&gt;(<span class="keyword">this</span>, streamModelLoader,</div><div class="line">            fileDescriptorModelLoader, optionsApplier));</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>BitmapTypeRequest具体的创建是通过RequestManager.OptionsApplier的<code>apply()</code>：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> &lt;A, X extends GenericRequestBuilder&lt;A, ?, ?, ?&gt;&gt; <span class="function">X <span class="title">apply</span><span class="params">(X builder)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (options != <span class="keyword">null</span>) &#123;</div><div class="line">        options.apply(builder);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> builder;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><code>apply()</code>中传入的对象为：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">BitmapTypeRequest(GenericRequestBuilder&lt;ModelType, ?, ?, ?&gt; other,</div><div class="line">        ModelLoader&lt;ModelType, InputStream&gt; streamModelLoader,</div><div class="line">        ModelLoader&lt;ModelType, ParcelFileDescriptor&gt; fileDescriptorModelLoader,</div><div class="line">        RequestManager.OptionsApplier optionsApplier) &#123;</div><div class="line">    <span class="keyword">super</span>(buildProvider(other.glide, streamModelLoader, fileDescriptorModelLoader, Bitmap.class, <span class="keyword">null</span>),</div><div class="line">            Bitmap.class, other);</div><div class="line">    <span class="keyword">this</span>.streamModelLoader = streamModelLoader;</div><div class="line">    <span class="keyword">this</span>.fileDescriptorModelLoader = fileDescriptorModelLoader;</div><div class="line">    <span class="keyword">this</span>.glide = other.glide;</div><div class="line">    <span class="keyword">this</span>.optionsApplier = optionsApplier;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>由此创建了BitmapTypeRequest对象。</p>
+<h2 id="asGif"><a href="#asGif" class="headerlink" title="asGif()"></a>asGif()</h2><p>上文中Glide调用<code>load()</code>生成了GenericRequestBuilder对象。<code>asGif()</code>是DrawableTypeRequest类提供的创建GifTypeRequest对象的方法，而GifTypeRequest继承自GifRequestBuilder，而GifRequestBuilder又继承自GenericRequestBuilder。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> GifTypeRequest&lt;ModelType&gt; <span class="title">asGif</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> optionsApplier.apply(<span class="keyword">new</span> GifTypeRequest&lt;ModelType&gt;(<span class="keyword">this</span>, streamModelLoader, optionsApplier));</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>GifTypeRequest具体的创建是通过RequestManager.OptionsApplier的<code>apply()</code>：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> &lt;A, X extends GenericRequestBuilder&lt;A, ?, ?, ?&gt;&gt; <span class="function">X <span class="title">apply</span><span class="params">(X builder)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (options != <span class="keyword">null</span>) &#123;</div><div class="line">        options.apply(builder);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> builder;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><code>apply()</code>中传入的对象为：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">GifTypeRequest(GenericRequestBuilder&lt;ModelType, ?, ?, ?&gt; other,</div><div class="line">        ModelLoader&lt;ModelType, InputStream&gt; streamModelLoader, RequestManager.OptionsApplier optionsApplier) &#123;</div><div class="line">    <span class="keyword">super</span>(buildProvider(other.glide, streamModelLoader, GifDrawable.class, <span class="keyword">null</span>), GifDrawable.class, other);</div><div class="line">    <span class="keyword">this</span>.streamModelLoader = streamModelLoader;</div><div class="line">    <span class="keyword">this</span>.optionsApplier = optionsApplier;</div><div class="line">    <span class="comment">// Default to animating.</span></div><div class="line">    crossFade();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>由此创建了GifTypeRequest对象。</p>
+<h2 id="override"><a href="#override" class="headerlink" title="override()"></a>override()</h2><p>XxxTypeRequest中<code>override()</code>的具体实现落实到了<code>BitmapRequestBuilder.java</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> BitmapRequestBuilder&lt;ModelType, TranscodeType&gt; <span class="title">override</span><span class="params">(<span class="keyword">int</span> width, <span class="keyword">int</span> height)</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.override(width, height);</div><div class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>override()</code>的具体实现上传到父类实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> GenericRequestBuilder&lt;ModelType, DataType, ResourceType, TranscodeType&gt; <span class="title">override</span><span class="params">(<span class="keyword">int</span> width, <span class="keyword">int</span> height)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (!Util.isValidDimensions(width, height)) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Width and height must be Target#SIZE_ORIGINAL or &gt; 0"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">this</span>.overrideWidth = width;</div><div class="line">    <span class="keyword">this</span>.overrideHeight = height;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>由此创建了GenericRequestBuilder对象。</p>
+<h2 id="error"><a href="#error" class="headerlink" title="error()"></a>error()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> BitmapRequestBuilder&lt;ModelType, TranscodeType&gt; <span class="title">error</span><span class="params">(<span class="keyword">int</span> resourceId)</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.error(resourceId);</div><div class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>具体实现上传到父类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> GenericRequestBuilder&lt;ModelType, DataType, ResourceType, TranscodeType&gt; <span class="title">error</span><span class="params">(</span></span></div><div class="line"><span class="function"><span class="params">        <span class="keyword">int</span> resourceId)</span> </span>&#123;</div><div class="line">    <span class="keyword">this</span>.errorId = resourceId;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>由此创建了GenericRequestBuilder对象。</p>
+<h2 id="placeholder"><a href="#placeholder" class="headerlink" title="placeholder()"></a>placeholder()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> BitmapRequestBuilder&lt;ModelType, TranscodeType&gt; <span class="title">placeholder</span><span class="params">(<span class="keyword">int</span> resourceId)</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.placeholder(resourceId);</div><div class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>具体实现由父类来完成：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> GenericRequestBuilder&lt;ModelType, DataType, ResourceType, TranscodeType&gt; <span class="title">placeholder</span><span class="params">(</span></span></div><div class="line"><span class="function"><span class="params">        <span class="keyword">int</span> resourceId)</span> </span>&#123;</div><div class="line">    <span class="keyword">this</span>.placeholderId = resourceId;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>由此创建了GenericRequestBuilder对象。</p>
+<h2 id="into"><a href="#into" class="headerlink" title="into()"></a>into()</h2><p>在GenericRequestBuilder子类XxxRequestBuilder中调用<code>into()</code>：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> Target&lt;TranscodeType&gt; <span class="title">into</span><span class="params">(ImageView view)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">super</span>.into(view);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>而具体的实现落实到了GenericRequestBuilder的<code>into()</code>,此<code>into()</code>取消已经加载到ImageView中的资源，以便ImageView能够被重用：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> Target&lt;TranscodeType&gt; <span class="title">into</span><span class="params">(ImageView view)</span> </span>&#123;</div><div class="line">    Util.assertMainThread();</div><div class="line">    <span class="keyword">if</span> (view == <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"You must pass in a non null View"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (!isTransformationSet &amp;&amp; view.getScaleType() != <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">switch</span> (view.getScaleType()) &#123;</div><div class="line">            <span class="keyword">case</span> CENTER_CROP:</div><div class="line">                applyCenterCrop();</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> FIT_CENTER:</div><div class="line">            <span class="keyword">case</span> FIT_START:</div><div class="line">            <span class="keyword">case</span> FIT_END:</div><div class="line">                applyFitCenter();</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="comment">//$CASES-OMITTED$</span></div><div class="line">            <span class="keyword">default</span>:</div><div class="line">                <span class="comment">// Do nothing.</span></div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> into(glide.buildImageViewTarget(view, transcodeClass));</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>设置资源将被加载到的Target：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> &lt;Y extends Target&lt;TranscodeType&gt;&gt; <span class="function">Y <span class="title">into</span><span class="params">(Y target)</span> </span>&#123;</div><div class="line">	<span class="comment">//断言是否在UI线程</span></div><div class="line">    Util.assertMainThread();</div><div class="line">    <span class="keyword">if</span> (target == <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"You must pass in a non null Target"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (!isModelSet) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"You must first set a model (try #load())"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//得到Target中的Request对象</span></div><div class="line">    Request previous = target.getRequest();</div><div class="line">    <span class="comment">//释放已有Request</span></div><div class="line">    <span class="keyword">if</span> (previous != <span class="keyword">null</span>) &#123;</div><div class="line">        previous.clear();</div><div class="line">        requestTracker.removeRequest(previous);</div><div class="line">        previous.recycle();</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//重新生成Request</span></div><div class="line">    Request request = buildRequest(target);</div><div class="line">    <span class="comment">//设置Request</span></div><div class="line">    target.setRequest(request);</div><div class="line">    <span class="comment">//为Target添加监听器</span></div><div class="line">    lifecycle.addListener(target);</div><div class="line">    <span class="comment">//追踪已给的Request</span></div><div class="line">    requestTracker.runRequest(request);</div><div class="line">    <span class="keyword">return</span> target;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Glide中图片加载的请求统一由RequestTracker处理，两个数据结构requests、pendingRequests值得注意。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//使用Set集合来存储Request对象，并使用弱引用的对象</span></div><div class="line"> <span class="keyword">private</span> <span class="keyword">final</span> Set&lt;Request&gt; requests = Collections.newSetFromMap(<span class="keyword">new</span> WeakHashMap&lt;Request, Boolean&gt;());</div></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//未完成或排队进行请求的集合</span></div><div class="line"><span class="keyword">private</span> <span class="keyword">final</span> List&lt;Request&gt; pendingRequests = <span class="keyword">new</span> ArrayList&lt;Request&gt;();</div></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.dayongxin.com/2017/10/19/glide-analyse-source-code/" data-id="cj8zjmlqj0011hfralqvj88u8" class="article-share-link">分享</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Glide源码解析/">Glide源码解析</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+ <script src="/jquery/jquery.min.js"></script>
+  <div id="random_posts">
+    <h2>推荐文章</h2>
+    <div class="random_posts_ul">
+      <script>
+          var random_count =4
+          var site = {BASE_URI:'/'};
+          function load_random_posts(obj) {
+              var arr=site.posts;
+              if (!obj) return;
+              // var count = $(obj).attr('data-count') || 6;
+              for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp);
+              arr = arr.slice(0, random_count);
+              var html = '<ul>';
+            
+              for(var j=0;j<arr.length;j++){
+                var item=arr[j];
+                html += '<li><strong>' + 
+                item.date + ':&nbsp;&nbsp;<a href="' + (site.BASE_URI+item.uri) + '">' + 
+                (item.title || item.uri) + '</a></strong>';
+                if(item.excerpt){
+                  html +='<div class="post-excerpt">'+item.excerpt+'</div>';
+                }
+                html +='</li>';
+                
+              }
+              $(obj).html(html + '</ul>');
+          }
+          $('.random_posts_ul').each(function () {
+              var c = this;
+              if (!site.posts || !site.posts.length){
+                  $.getJSON(site.BASE_URI + 'js/posts.js',function(json){site.posts = json;load_random_posts(c)});
+              } 
+               else{
+                load_random_posts(c);
+              }
+          });
+      </script>
+    </div>
+  </div>
+
+    
+<nav id="article-nav">
+  
+    <a href="/2017/10/20/eventbus-code-analyse/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">
+        
+          EventBus源码解析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/10/19/glide-use-simple/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">Android Glide完全解析(上)：Glide用法</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+ 
+     
+  <div class="comments" id="comments">
+    
+     
+       
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+       
+      
+      
+  </div>
+ 
+  
+
+</section>
+           
+    <aside id="sidebar">
+  
+    
+    <div class="widget-wrap">
+    
+      <div class="widget" id="toc-widget-fixed">
+      
+        <strong class="toc-title">文章目录</strong>
+        <div class="toc-widget-list">
+              <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Glide总体设计"><span class="toc-number">1.</span> <span class="toc-text">Glide总体设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#with"><span class="toc-number">2.</span> <span class="toc-text">with()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#load"><span class="toc-number">3.</span> <span class="toc-text">load()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#asBitmap"><span class="toc-number">4.</span> <span class="toc-text">asBitmap()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#asGif"><span class="toc-number">5.</span> <span class="toc-text">asGif()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#override"><span class="toc-number">6.</span> <span class="toc-text">override()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#error"><span class="toc-number">7.</span> <span class="toc-text">error()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#placeholder"><span class="toc-number">8.</span> <span class="toc-text">placeholder()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#into"><span class="toc-number">9.</span> <span class="toc-text">into()</span></a></li></ol>
+          </div>
+      </div>
+    </div>
+
+  
+    
+
+  
+    
+  
+    
+  
+    
+
+  
+    
+  
+</aside>
+
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-left">
+      &copy; 2014 - 2017 dayongxin&nbsp;|&nbsp;
+      主题 <a href="https://github.com/giscafer/hexo-theme-cafe/" target="_blank">Cafe</a>
+    </div>
+     <div id="footer-right">
+      联系方式&nbsp;|&nbsp;youemail@outlook.com
+    </div>
+  </div>
+</footer>
+ <script src="/jquery/jquery.min.js"></script>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">首页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/product" class="mobile-nav-link">作品</a>
+  
+    <a href="/resume" class="mobile-nav-link">简历</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    <img class="back-to-top-btn" src="/images/fly-to-top.png"/>
+<script>
+// Elevator script included on the page, already.
+window.onload = function() {
+  var elevator = new Elevator({
+    selector:'.back-to-top-btn',
+    element: document.querySelector('.back-to-top-btn'),
+    duration: 1000 // milliseconds
+  });
+}
+</script>
+      
+
+  
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "e2fb4051c49842688ce669e634bc983f",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+    
+
+  
+
+
+
+
+
+
+
+<!-- author:forvoid begin -->
+<!-- author:forvoid begin -->
+
+<!-- author:forvoid end -->
+
+<!-- author:forvoid end -->
+
+
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      })
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      })
+    </script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+ <script src="/js/is.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+<script src="/js/elevator.js"></script>
+  </div>
+</body>
+</html>

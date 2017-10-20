@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android okhttp完全解析(下)：okhttp源码解析 | 哒哒</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="OkHttp3源码解析">
+<meta name="keywords" content="okhttp源码解析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android okhttp完全解析(下)：okhttp源码解析">
+<meta property="og:url" content="http://www.dayongxin.com/2017/10/17/android-okhttp-down/index.html">
+<meta property="og:site_name" content="哒哒">
+<meta property="og:description" content="OkHttp3源码解析">
+<meta property="og:image" content="http://oqle0m5m6.bkt.clouddn.com/okHttp%E8%AF%B7%E6%B1%82%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="http://oqle0m5m6.bkt.clouddn.com/OkHttp%E8%AF%B7%E6%B1%82%E6%B5%81%E7%A8%8B2.png">
+<meta property="og:image" content="http://oqle0m5m6.bkt.clouddn.com/OkHttp%E6%8B%A6%E6%88%AA%E5%99%A8.png">
+<meta property="og:image" content="http://oqle0m5m6.bkt.clouddn.com/OkHttp%E8%AF%B7%E6%B1%82%E6%B5%81%E7%A8%8B3.png">
+<meta property="og:updated_time" content="2017-10-19T11:36:46.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android okhttp完全解析(下)：okhttp源码解析">
+<meta name="twitter:description" content="OkHttp3源码解析">
+<meta name="twitter:image" content="http://oqle0m5m6.bkt.clouddn.com/okHttp%E8%AF%B7%E6%B1%82%E7%BB%93%E6%9E%84.png">
+  
+    <link rel="alternate" href="/atom.xml" title="哒哒" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    
+    <div id="header-inner" class="inner">
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://www.dayongxin.com"></form>
+      </div>
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">首页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/product">作品</a>
+        
+          <a class="main-nav-link" href="/resume">简历</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
+        
+      </nav>
+      
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">哒哒</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Keep engineers playfully</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-android-okhttp-down" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/10/17/android-okhttp-down/" class="article-date">
+  <time datetime="2017-10-17T14:57:55.000Z" itemprop="datePublished">2017-10-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Android okhttp完全解析(下)：okhttp源码解析
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <p>OkHttp3源码解析</p>
+<a id="more"></a>
+<h2 id="OkHttp整体架构"><a href="#OkHttp整体架构" class="headerlink" title="OkHttp整体架构"></a>OkHttp整体架构</h2><p><img src="http://oqle0m5m6.bkt.clouddn.com/okHttp%E8%AF%B7%E6%B1%82%E7%BB%93%E6%9E%84.png" alt=""></p>
+<h3 id="拦截器-Interceptors-简介"><a href="#拦截器-Interceptors-简介" class="headerlink" title="拦截器(Interceptors)简介"></a>拦截器(Interceptors)简介</h3><ul>
+<li>拦截器(Interceptors)是一种强大的机制，可以监视、重写和重试访问。</li>
+<li>对<code>chain.proceed(request)</code>的调用是每个拦截器实现的关键部分。所有http请求都发生在这个简单的方法内，并产生响应应答请求。</li>
+<li>拦截器可以被连接。假设有一个压缩拦截器和一个校验拦截器:需要决定数据是被压缩的，然后校验，或者是校验，然后是压缩。OkHttp使用列表来跟踪拦截器，并按顺序调用拦截器。</li>
+</ul>
+<h3 id="应用拦截器"><a href="#应用拦截器" class="headerlink" title="应用拦截器"></a>应用拦截器</h3><ul>
+<li>不需要担心像重定向和重试这样的中间响应。</li>
+<li>总是调用一次，即使http响应是从缓存中提供的。</li>
+<li>观察应用程序的原始意图。不关心像<code>If-None-Match</code>那样的okhttp注入的头文件。</li>
+<li>允许短路和不访问<code>Chain.proceed()</code>。</li>
+<li>允许重试和使得多个请求访问<code>Chain.proceed()</code>。</li>
+</ul>
+<h3 id="网络拦截器"><a href="#网络拦截器" class="headerlink" title="网络拦截器"></a>网络拦截器</h3><ul>
+<li>能够操作像重定向和重试这样的中间响应。</li>
+<li>不调用短路网络的缓存响应。</li>
+<li>观察数据，就像它将在网络上传输一样。</li>
+<li>访问承载请求的连接。</li>
+</ul>
+<h2 id="OkHttp同步请求流程分析"><a href="#OkHttp同步请求流程分析" class="headerlink" title="OkHttp同步请求流程分析"></a>OkHttp同步请求流程分析</h2><h3 id="OkHttp同步请求流程"><a href="#OkHttp同步请求流程" class="headerlink" title="OkHttp同步请求流程"></a>OkHttp同步请求流程</h3><p>OkHttp使用同步方式进行网络请求流程如下所示：</p>
+<p><img src="http://oqle0m5m6.bkt.clouddn.com/OkHttp%E8%AF%B7%E6%B1%82%E6%B5%81%E7%A8%8B2.png" alt=""></p>
+<h3 id="创建OkHttpClient"><a href="#创建OkHttpClient" class="headerlink" title="创建OkHttpClient"></a>创建OkHttpClient</h3><p>OkHttp的源码分析从OkHttpClient对象的创建开始：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">OkHttpClient client = <span class="keyword">new</span> OkHttpClient();</div></pre></td></tr></table></figure></p>
+<p><code>OkHttpClient</code>对象的真正创建并不是直接通过构造方法创建，而是通过<code>this</code>调用将<code>Builder</code>对象作为参数的构造方法。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">OkHttpClient</span><span class="params">()</span> </span>&#123;</div><div class="line">  <span class="keyword">this</span>(<span class="keyword">new</span> Builder());</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>而OkHttpClient真的创建过程是在<code>OkHttpClient(Builder builder)</code>中：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">OkHttpClient(Builder builder)&#123;</div><div class="line">	<span class="comment">//源代码省略</span></div><div class="line">	<span class="comment">//1、初始化通用参数，比如：Dispatcher、Proxy、CookieJar、ProxySelector等；</span></div><div class="line">	<span class="comment">//2、初始化非通用参数，比如：SSLSocketFactory、CertificateChainCleaner等。</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="创建Request"><a href="#创建Request" class="headerlink" title="创建Request"></a>创建Request</h3><p>OkHttpClient对象调用<code>newCall()</code>创建Call对象时需要传入Request对象，下面分析Request对象的产生过程：</p>
+<ul>
+<li>Request对象的创建首选需要通过<code>new Request.Builder()</code>创建Builder对象，Builder是一个静态内部类，包含成员变量：<code>url</code>、<code>method</code>、<code>headers</code>、<code>body</code>和<code>tag</code>。静态内部类Builder有与成员变量相关的如下方法：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//为请求设置url目标</span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">url</span><span class="params">(HttpUrl url)</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">url</span><span class="params">(String url)</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">url</span><span class="params">(URL url)</span></span></div><div class="line"><span class="function"><span class="comment">//为请求设置header</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">header</span><span class="params">(String name, String value)</span></span></div><div class="line"><span class="function"><span class="comment">//为请求添加header</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">addHeader</span><span class="params">(String name, String value)</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">headers</span><span class="params">(Headers headers)</span></span></div><div class="line"><span class="function"><span class="comment">//删除header</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">removeHeader</span><span class="params">(String name)</span></span></div><div class="line"><span class="function"><span class="comment">//设置请求header的Cache-Control</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">cacheControl</span><span class="params">(CacheControl cacheControl)</span></span></div><div class="line"><span class="function"><span class="comment">//get方式</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">get</span><span class="params">()</span></span></div><div class="line"><span class="function"><span class="comment">//post方式</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">post</span><span class="params">(RequestBody body)</span></span></div><div class="line"><span class="function"><span class="comment">//head方式</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">head</span><span class="params">()</span></span></div><div class="line"><span class="function"><span class="comment">//delete方式</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">delete</span><span class="params">(@Nullable RequestBody body)</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">delete</span><span class="params">()</span></span></div><div class="line"><span class="function"><span class="comment">//put方式</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">put</span><span class="params">(RequestBody body)</span></span></div><div class="line"><span class="function"><span class="comment">//patch方式</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">patch</span><span class="params">(RequestBody body)</span></span></div><div class="line"><span class="function"><span class="comment">//上述请求方式具体实现方法</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">method</span><span class="params">(String method, @Nullable RequestBody body)</span></span></div><div class="line"><span class="function"><span class="comment">//绑定tag到请求，取消请求时用到</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">tag</span><span class="params">(Object tag)</span></span></div><div class="line"><span class="function"><span class="comment">//构建Request对象</span></span></div><div class="line"><span class="function"><span class="keyword">public</span> Request <span class="title">build</span><span class="params">()</span></span></div></pre></td></tr></table></figure>
+<ul>
+<li>在创建了Builder对象，并设置相关属性之后调用<code>build()</code>创建Request对象完成。</li>
+</ul>
+<h3 id="创建Call"><a href="#创建Call" class="headerlink" title="创建Call"></a>创建Call</h3><p>接着上面分析，OkHttpClient调用<code>newCall()</code>创建Call对象，Call接口有以下几个方法：</p>
+<ul>
+<li>execute()：执行同步网络请求；</li>
+<li>enqueue()：执行异步网络请求，需要传入<code>Callback</code>参数；</li>
+<li>cancel()：取消网络请求；</li>
+<li>isExecuted()：判断网络请求是否执行；</li>
+<li>isCanceled()：判断网络请求是否取消；</li>
+</ul>
+<h3 id="创建Response"><a href="#创建Response" class="headerlink" title="创建Response"></a>创建Response</h3><p>先分析同步网络请求调用<code>execute()</code>得到Response对象，异步网络请求调用<code>enqueue()</code>在下一小节进行分析，以下为Response提供的方法：</p>
+<ul>
+<li>protocol()：返回http协议：<code>HTTP_1_0(&quot;http/1.0&quot;)</code>、<code>HTTP_1_1(&quot;http/1.1&quot;)</code>、<code>SPDY_3(&quot;spdy/3.1&quot;)</code>和<code>HTTP_2(&quot;h2&quot;)</code>；</li>
+<li>code()：返回http状态码；</li>
+<li>isSuccessful()：请求是否成功被接收；</li>
+<li>message()：返回状态消息；</li>
+<li>handshake()：返回带有该响应的连接的TLS握手，如果响应被接收但没有通过TLS则返回null；</li>
+<li>headers()/header()：获取header信息；</li>
+<li>peekBody()：从响应体中获得指定数量字节，并将其作为一个新的响应体返回。在响应体中如果少于指定数量字节，则将完整的响应体返回。在响应体中如果超过指定数量的字节，则将被截断为指定数量字节返回；</li>
+<li>body()：返回一个非空的ResponseBody值；</li>
+<li>isRedirect()：如果响应重定向到其他资源返回true；</li>
+<li>networkResponse()：返回从网络接收到的原始响应；</li>
+<li>cacheResponse()：返回从缓存接收到的原始响应；</li>
+<li>priorResponse()：返回触发此响应的HTTP重定向或授权挑战的响应，如果此响应不是由自动重试触发的，则返回null。返回响应的主体不应该被读取，因为它已经被重定向客户端使用了；</li>
+<li>challenges()：返回适用于此响应代码的授权挑战；</li>
+<li>cacheControl()：返回该响应的缓存控制指令；</li>
+</ul>
+<p>以上为Response类重要方法，Response调用<code>body()</code>之后会得到ResponseBody对象。ResponseBody是一个抽象类，在此会调用一下非抽象方法对ResponseBody进行处理：</p>
+<ul>
+<li>byteStream()：获取响应的字节流；</li>
+<li>bytes()：将响应转换为字节数组；</li>
+<li>charStream()：将响应返回为字符流，使用服务器<code>content-type</code>指定的字符集进行解码；</li>
+<li>string()：将响应返回为一个字符串，使用服务器<code>content-type</code>指定的字符集进行解码；</li>
+<li>charset()：获取服务器字符集；</li>
+</ul>
+<h3 id="execute-具体实现"><a href="#execute-具体实现" class="headerlink" title="execute()具体实现"></a>execute()具体实现</h3><p>这样就可以拿到ResponseBody做后续的处理了，分析了这么多并没有讲到同步请求<code>execute()</code>的具体实现，在调用<code>newCall()</code>时，并没有在这个方法处理Request，而是在RealCall类的<code>newRealCall()</code>中做具体的处理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Response <span class="title">execute</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">  <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</div><div class="line">    <span class="keyword">if</span> (executed) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Already Executed"</span>);</div><div class="line">    executed = <span class="keyword">true</span>;</div><div class="line">  &#125;</div><div class="line">   <span class="comment">//捕获调用堆栈</span></div><div class="line">  captureCallStackTrace();</div><div class="line">  <span class="comment">//当调用被排队或由客户端执行调用时</span></div><div class="line">  eventListener.callStart(<span class="keyword">this</span>);</div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">  	<span class="comment">//调用</span></div><div class="line">    client.dispatcher().executed(<span class="keyword">this</span>);</div><div class="line">    <span class="comment">//在拦截器链中获得响应</span></div><div class="line">    Response result = getResponseWithInterceptorChain();</div><div class="line">    <span class="keyword">if</span> (result == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Canceled"</span>);</div><div class="line">    <span class="keyword">return</span> result;</div><div class="line">  &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    eventListener.callFailed(<span class="keyword">this</span>, e);</div><div class="line">    <span class="keyword">throw</span> e;</div><div class="line">  &#125; <span class="keyword">finally</span> &#123;</div><div class="line">    client.dispatcher().finished(<span class="keyword">this</span>);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="通过拦截器获取响应"><a href="#通过拦截器获取响应" class="headerlink" title="通过拦截器获取响应"></a>通过拦截器获取响应</h3><p>而真正获取网络响应是在<code>getResponseWithInterceptorChain()</code>中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="function">Response <span class="title">getResponseWithInterceptorChain</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">  <span class="comment">//构建完整的拦截器</span></div><div class="line">  List&lt;Interceptor&gt; interceptors = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">  <span class="comment">//添加OkHttpClient中的拦截器</span></div><div class="line">  interceptors.addAll(client.interceptors());</div><div class="line">  <span class="comment">//添加从失败中恢复，并根据需要跟踪重定向的拦截器RetryAndFollowUpInterceptor</span></div><div class="line">  interceptors.add(retryAndFollowUpInterceptor);</div><div class="line">  <span class="comment">//添加从应用程序代码到网络代码的桥梁拦截器BridgeInterceptor。首先，它构建一个用户的网络请求请求。然后它开始调用这个网络。最后，它构建了来自网络的用户响应响应。</span></div><div class="line">  interceptors.add(<span class="keyword">new</span> BridgeInterceptor(client.cookieJar()));</div><div class="line">  <span class="comment">//从缓存中处理请求，并对缓存写响应的拦截器CacheInterceptor</span></div><div class="line">  interceptors.add(<span class="keyword">new</span> CacheInterceptor(client.internalCache()));</div><div class="line">  <span class="comment">//打开到目标服务器的连接，并继续执行下一个任务的拦截器ConnectInterceptor</span></div><div class="line">  interceptors.add(<span class="keyword">new</span> ConnectInterceptor(client));</div><div class="line">  <span class="keyword">if</span> (!forWebSocket) &#123;</div><div class="line">  	<span class="comment">//如果不是Socket网络请求，添加OkHttpClient中的networkInterceptors</span></div><div class="line">    interceptors.addAll(client.networkInterceptors());</div><div class="line">  &#125;</div><div class="line">  <span class="comment">//添加这是链中的最后一个拦截器CallServerInterceptor，它向服务器发出一个网络调用</span></div><div class="line">  interceptors.add(<span class="keyword">new</span> CallServerInterceptor(forWebSocket));</div><div class="line">  <span class="comment">//构建Interceptor.Chain对象</span></div><div class="line">  Interceptor.Chain chain = <span class="keyword">new</span> RealInterceptorChain(interceptors, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="number">0</span>,</div><div class="line">      originalRequest, <span class="keyword">this</span>, eventListener, client.connectTimeoutMillis(),</div><div class="line">      client.readTimeoutMillis(), client.writeTimeoutMillis());</div><div class="line">  <span class="comment">//执行拦截链请求</span></div><div class="line">  <span class="keyword">return</span> chain.proceed(originalRequest);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>需要注意的是，同步网络请求底层并没有新建线程来处理，因此在实际开发中需要需要将同步网络请求移步到子线程进行。</p>
+<h3 id="拦截器执行流程"><a href="#拦截器执行流程" class="headerlink" title="拦截器执行流程"></a>拦截器执行流程</h3><p>获取网络请求响应的拦截器链如下图所示：<br><img src="http://oqle0m5m6.bkt.clouddn.com/OkHttp%E6%8B%A6%E6%88%AA%E5%99%A8.png" alt=""></p>
+<ul>
+<li>创建完整的拦截器链interceptors</li>
+<li>添加OkHttpClient中的interceptors</li>
+<li>添加retryAndFollowUpInterceptor拦截器</li>
+<li>添加BridgeInterceptor拦截器</li>
+<li>添加CacheInterceptor拦截器</li>
+<li>添加ConnectInterceptor拦截器</li>
+<li>添加networkInterceptors拦截器</li>
+<li>添加CallServerInterceptor拦截器</li>
+</ul>
+<p>最终通过构造方法<code>RealInterceptorChain()</code>创建出Interceptor.Chain对象，调用<code>chain.proceed()</code>生成Response。</p>
+<h2 id="OkHttp异步请求流程分析"><a href="#OkHttp异步请求流程分析" class="headerlink" title="OkHttp异步请求流程分析"></a>OkHttp异步请求流程分析</h2><h3 id="OkHttp异步请求流程"><a href="#OkHttp异步请求流程" class="headerlink" title="OkHttp异步请求流程"></a>OkHttp异步请求流程</h3><p><img src="http://oqle0m5m6.bkt.clouddn.com/OkHttp%E8%AF%B7%E6%B1%82%E6%B5%81%E7%A8%8B3.png" alt=""></p>
+<h3 id="enqueue-具体实现"><a href="#enqueue-具体实现" class="headerlink" title="enqueue()具体实现"></a>enqueue()具体实现</h3><p>OkHttp异步网络请求的创建OkHttpClient、Request、Call和Response的过程与同步方式相同，在此不再介绍，只介绍两种请求方式不同。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">enqueue</span><span class="params">(Callback responseCallback)</span> </span>&#123;</div><div class="line">  <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</div><div class="line">    <span class="keyword">if</span> (executed) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Already Executed"</span>);</div><div class="line">    executed = <span class="keyword">true</span>;</div><div class="line">  &#125;</div><div class="line">  <span class="comment">//捕获调用堆栈</span></div><div class="line">  captureCallStackTrace();</div><div class="line">  <span class="comment">//当调用被排队或由客户端执行调用时</span></div><div class="line">  eventListener.callStart(<span class="keyword">this</span>);</div><div class="line">  <span class="comment">//调用</span></div><div class="line">  client.dispatcher().enqueue(<span class="keyword">new</span> AsyncCall(responseCallback));</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在进行异步网络请求时，<code>enqueue()</code>中传入了一个AsyncCall对象，而AsyncCall继承自NamedRunnable类，而NamedRunnable实现了Runnable并重新<code>run()</code>，由此实现在子线程中进行网络请求，而在使用了异步网络请求进行UI更新时，需要切换到UI线程，这点需要注意。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.dayongxin.com/2017/10/17/android-okhttp-down/" data-id="cj8zjmlqe000qhfrarvb9spx9" class="article-share-link">分享</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/okhttp源码解析/">okhttp源码解析</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+ <script src="/jquery/jquery.min.js"></script>
+  <div id="random_posts">
+    <h2>推荐文章</h2>
+    <div class="random_posts_ul">
+      <script>
+          var random_count =4
+          var site = {BASE_URI:'/'};
+          function load_random_posts(obj) {
+              var arr=site.posts;
+              if (!obj) return;
+              // var count = $(obj).attr('data-count') || 6;
+              for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp);
+              arr = arr.slice(0, random_count);
+              var html = '<ul>';
+            
+              for(var j=0;j<arr.length;j++){
+                var item=arr[j];
+                html += '<li><strong>' + 
+                item.date + ':&nbsp;&nbsp;<a href="' + (site.BASE_URI+item.uri) + '">' + 
+                (item.title || item.uri) + '</a></strong>';
+                if(item.excerpt){
+                  html +='<div class="post-excerpt">'+item.excerpt+'</div>';
+                }
+                html +='</li>';
+                
+              }
+              $(obj).html(html + '</ul>');
+          }
+          $('.random_posts_ul').each(function () {
+              var c = this;
+              if (!site.posts || !site.posts.length){
+                  $.getJSON(site.BASE_URI + 'js/posts.js',function(json){site.posts = json;load_random_posts(c)});
+              } 
+               else{
+                load_random_posts(c);
+              }
+          });
+      </script>
+    </div>
+  </div>
+
+    
+<nav id="article-nav">
+  
+    <a href="/2017/10/19/glide-use-simple/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">
+        
+          Android Glide完全解析(上)：Glide用法
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/10/17/android-okhttp-up/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">Android OkHttp完全解析(上)：OkHttp用法</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+ 
+     
+  <div class="comments" id="comments">
+    
+     
+       
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+       
+      
+      
+  </div>
+ 
+  
+
+</section>
+           
+    <aside id="sidebar">
+  
+    
+    <div class="widget-wrap">
+    
+      <div class="widget" id="toc-widget-fixed">
+      
+        <strong class="toc-title">文章目录</strong>
+        <div class="toc-widget-list">
+              <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#OkHttp整体架构"><span class="toc-number">1.</span> <span class="toc-text">OkHttp整体架构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#拦截器-Interceptors-简介"><span class="toc-number">1.1.</span> <span class="toc-text">拦截器(Interceptors)简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#应用拦截器"><span class="toc-number">1.2.</span> <span class="toc-text">应用拦截器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#网络拦截器"><span class="toc-number">1.3.</span> <span class="toc-text">网络拦截器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OkHttp同步请求流程分析"><span class="toc-number">2.</span> <span class="toc-text">OkHttp同步请求流程分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#OkHttp同步请求流程"><span class="toc-number">2.1.</span> <span class="toc-text">OkHttp同步请求流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建OkHttpClient"><span class="toc-number">2.2.</span> <span class="toc-text">创建OkHttpClient</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建Request"><span class="toc-number">2.3.</span> <span class="toc-text">创建Request</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建Call"><span class="toc-number">2.4.</span> <span class="toc-text">创建Call</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建Response"><span class="toc-number">2.5.</span> <span class="toc-text">创建Response</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#execute-具体实现"><span class="toc-number">2.6.</span> <span class="toc-text">execute()具体实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过拦截器获取响应"><span class="toc-number">2.7.</span> <span class="toc-text">通过拦截器获取响应</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#拦截器执行流程"><span class="toc-number">2.8.</span> <span class="toc-text">拦截器执行流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OkHttp异步请求流程分析"><span class="toc-number">3.</span> <span class="toc-text">OkHttp异步请求流程分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#OkHttp异步请求流程"><span class="toc-number">3.1.</span> <span class="toc-text">OkHttp异步请求流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#enqueue-具体实现"><span class="toc-number">3.2.</span> <span class="toc-text">enqueue()具体实现</span></a></li></ol></li></ol>
+          </div>
+      </div>
+    </div>
+
+  
+    
+
+  
+    
+  
+    
+  
+    
+
+  
+    
+  
+</aside>
+
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-left">
+      &copy; 2014 - 2017 dayongxin&nbsp;|&nbsp;
+      主题 <a href="https://github.com/giscafer/hexo-theme-cafe/" target="_blank">Cafe</a>
+    </div>
+     <div id="footer-right">
+      联系方式&nbsp;|&nbsp;youemail@outlook.com
+    </div>
+  </div>
+</footer>
+ <script src="/jquery/jquery.min.js"></script>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">首页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/product" class="mobile-nav-link">作品</a>
+  
+    <a href="/resume" class="mobile-nav-link">简历</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    <img class="back-to-top-btn" src="/images/fly-to-top.png"/>
+<script>
+// Elevator script included on the page, already.
+window.onload = function() {
+  var elevator = new Elevator({
+    selector:'.back-to-top-btn',
+    element: document.querySelector('.back-to-top-btn'),
+    duration: 1000 // milliseconds
+  });
+}
+</script>
+      
+
+  
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "e2fb4051c49842688ce669e634bc983f",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+    
+
+  
+
+
+
+
+
+
+
+<!-- author:forvoid begin -->
+<!-- author:forvoid begin -->
+
+<!-- author:forvoid end -->
+
+<!-- author:forvoid end -->
+
+
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      })
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      })
+    </script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+ <script src="/js/is.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+<script src="/js/elevator.js"></script>
+  </div>
+</body>
+</html>
